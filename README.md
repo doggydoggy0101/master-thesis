@@ -28,7 +28,7 @@ sudo apt install -y g++ build-essential cmake
 sudo apt install -y libeigen3-dev libomp-dev
 # python (optional)
 sudo apt install -y python3 python3-dev
-python3 -m pip install numpy 
+sudo apt install python3-numpy
 
 git clone --recurse-submodules -j8 https://github.com/doggydoggy0101/master-thesis.git
 cd master-thesis

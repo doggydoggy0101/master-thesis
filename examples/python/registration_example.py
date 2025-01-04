@@ -9,7 +9,6 @@ __dir__ = os.path.dirname(os.path.abspath(__file__))
 try:
     path = os.path.join(__dir__, "../../build/python")
     sys.path.append(path)
-    print(path)
     import registration_python
 except ImportError:
     print("Make sure project was built with python binding.")
@@ -30,6 +29,15 @@ def get_toy_data():
     return src, dst, gt
 
 
+def perform_max_clique_inlier_selection(
+    src, dst, noise_bound, pmc_timeout, pmc_n_threads
+):
+    indices = registration_python.mcis.inlier_selection(
+        src, dst, noise_bound, pmc_timeout, pmc_n_threads
+    )
+    return np.take(src, indices, axis=0), np.take(dst, indices, axis=0)
+
+
 def main():
     max_iteration = 100
     tol = 1e-6
@@ -41,7 +49,10 @@ def main():
     pmc_n_threads = 4
     src_reg, dst_reg, gt_reg = get_toy_data()
 
-    # TODO: MCIS
+    if ENABLE_MAX_CLIQUE_INLIER_SELECTION:
+        src_reg, dst_reg = perform_max_clique_inlier_selection(
+            src_reg, dst_reg, noise_bound, pmc_timeout, pmc_n_threads
+        )
 
     fracgm_reg = registration_python.fracgm(max_iteration, tol, c, noise_bound).solve(
         src_reg, dst_reg

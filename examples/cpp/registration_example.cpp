@@ -10,11 +10,11 @@
 #include <tuple>
 #include <vector>
 
-// #include "registration/mcis.h"
 #include "registration/fracgm.h"
+#include "registration/mcis.h"
 #include "registration/qgm.h"
 
-// #define ENABLE_MAX_CLIQUE_INLIER_SELECTION
+#define ENABLE_MAX_CLIQUE_INLIER_SELECTION
 
 using PointCloud = Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor>;
 
@@ -67,7 +67,24 @@ std::tuple<PointCloud, PointCloud, Eigen::Matrix<double, 4, 4, Eigen::RowMajor>>
   return std::make_tuple(src, dst, gt);
 }
 
-// TODO: MCIS
+std::tuple<PointCloud, PointCloud> perform_max_clique_inlier_selection(const PointCloud &pc1, const PointCloud &pc2,
+                                                                       double noise_bound, double pmc_timeout,
+                                                                       int pmc_n_threads) {
+  auto indices = registration::mcis::inlier_selection(pc1, pc2, noise_bound, pmc_timeout, pmc_n_threads);
+
+  if (indices.empty()) return std::make_tuple(pc1, pc2);
+
+  PointCloud inlier_pc1(indices.size(), 3);
+  PointCloud inlier_pc2(indices.size(), 3);
+
+  for (size_t idx = 0; idx < indices.size(); idx++) {
+    auto index = indices[idx];
+    inlier_pc1.row(idx) = pc1.row(index);
+    inlier_pc2.row(idx) = pc2.row(index);
+  }
+
+  return std::make_tuple(inlier_pc1, inlier_pc2);
+}
 
 int main() {
   size_t max_iteration = 100;
@@ -80,9 +97,17 @@ int main() {
 
   auto [src_reg, dst_reg, gt_reg] = get_toy_data();
 
+#ifdef ENABLE_MAX_CLIQUE_INLIER_SELECTION
+  auto [inlier_src_reg, inlier_dst_reg] =
+      perform_max_clique_inlier_selection(src_reg, dst_reg, noise_bound, pmc_timeout, pmc_n_threads);
+
+  auto fracgm_reg = registration::fracgm(max_iteration, tol, c, noise_bound).solve(inlier_src_reg, inlier_dst_reg);
+  auto qgm_reg = registration::qgm(max_iteration, tol, c, noise_bound).solve(inlier_src_reg, inlier_dst_reg);
+#else
   auto fracgm_reg = registration::fracgm(max_iteration, tol, c, noise_bound).solve(src_reg, dst_reg);
   auto qgm_reg = registration::qgm(max_iteration, tol, c, noise_bound).solve(src_reg, dst_reg);
-  
+#endif
+
   std::cout << "Ground Truth:" << "\n" << gt_reg << "\n\n";
   std::cout << "FracGM:" << "\n" << fracgm_reg << "\n\n";
   std::cout << "QGM:" << "\n" << qgm_reg << "\n\n";

@@ -12,6 +12,9 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 find_package(Eigen3 REQUIRED NO_MODULE)
 include_directories(${EIGEN3_INCLUDE_DIRS})
 
+# PMC
+add_subdirectory(third-party/pmc)
+
 
 add_subdirectory(registration)
 message(STATUS "Building source done")

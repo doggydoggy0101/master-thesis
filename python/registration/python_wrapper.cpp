@@ -6,8 +6,8 @@
 #include <pybind11/eigen.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-// #include <registration/mcis.h>
 #include <registration/fracgm.h>
+#include <registration/mcis.h>
 #include <registration/qgm.h>
 
 namespace py = pybind11;
@@ -21,6 +21,6 @@ PYBIND11_MODULE(registration_python, module) {
       .def(py::init<const size_t, const double, const double, const double>())
       .def("solve", &registration::qgm::solve);
 
-//   py::module_ mcis = module.def_submodule("mcis");
-//   mcis.def("inlier_selection", &registration::mcis::inlier_selection);
+  py::module_ mcis = module.def_submodule("mcis");
+  mcis.def("inlier_selection", &registration::mcis::inlier_selection);
 }

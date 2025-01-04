@@ -1,6 +1,6 @@
 project(python_wrapper)
 
-pybind11_add_module(registration_python registration/python_wrapper.cpp)
+pybind11_add_module(registration_python registration_python/python_wrapper.cpp)
 
 target_link_libraries(registration_python PUBLIC Registration::registration)
 
@@ -14,12 +14,12 @@ SET_TARGET_PROPERTIES(
     registration_python
     PROPERTIES 
     PREFIX ""
-    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/registration"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/registration_python"
 )
 
 configure_file(
-    registration/__init__.py
-    ${CMAKE_CURRENT_BINARY_DIR}/registration/__init__.py 
+    registration_python/__init__.py
+    ${CMAKE_CURRENT_BINARY_DIR}/registration_python/__init__.py 
 )
 
 configure_file(

@@ -6,7 +6,7 @@
 
 **About**
 
-Official implementation of my master thesis "Algorithms for Geman-McClure Robust Estimation and Applications for Spatial Perceptions". This library is written in **C++** and we support **C++**, and **Python** interfaces.
+Official implementation of my master thesis "Algorithms for Geman-McClure Robust Estimation and Applications for Spatial Perceptions". This library is written in **C++** and we support **Python** interface.
 
 **Table of Contents**
 
@@ -34,7 +34,7 @@ sudo apt install -y python3 python3-dev python3-venv
 git clone --recurse-submodules -j8 https://github.com/doggydoggy0101/master-thesis.git
 cd master-thesis
 
-# If you do not clone the repository with --recurse-submodules option,
+# If you did not clone the repository with --recurse-submodules option,
 # you may need to run the following command.
 git submodule update --init
 ```
@@ -69,8 +69,8 @@ We provide two robust point cloud registration solvers.
 
 | Solver | Description                                                         |
 | ------ | ------------------------------------------------------------------- |
-| FracGM | A FracGM-based registration solver with linear relaxation approach. |
-| QGM    | A QGM-based registration solver with linear relaxation approach.    |
+| FracGM | FracGM-based registration solver with linear relaxation approach. |
+| QGM    | QGM-based registration solver with linear relaxation approach.    |
 
 - [:croissant: C++](examples/cpp)
 - [:snake: Python](examples/python)

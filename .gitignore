@@ -7,6 +7,9 @@ build/
 # IDEs
 .vscode
 
+# environments
+.venv
+
 # ruff
 .ruff_cache
 

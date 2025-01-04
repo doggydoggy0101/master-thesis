@@ -1,0 +1,32 @@
+name: check-code-quality
+
+on:
+  pull_request:
+    branches:
+      - main
+
+  push:
+    branches:
+      - main
+
+jobs:
+  check-python-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python code formatting
+        uses: chartboost/ruff-action@v1
+        with:
+          args: format --check
+  
+  check-cpp-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check C++ code formatting
+        uses: DoozyX/clang-format-lint-action@v0.18.1
+        with:
+          source: '.'
+          exclude: './third-party'
+          extensions: 'h,cpp'
+          clangFormatVersion: '18.1.8'

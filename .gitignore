@@ -1,0 +1,14 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# C++
+build/
+
+# IDEs
+.vscode
+
+# ruff
+.ruff_cache
+
+# macOS
+.DS_Store

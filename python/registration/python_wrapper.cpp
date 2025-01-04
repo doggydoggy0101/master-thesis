@@ -12,7 +12,7 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(qgm_python, module) {
+PYBIND11_MODULE(registration_python, module) {
   py::class_<registration::fracgm>(module, "fracgm")
       .def(py::init<const size_t, const double, const double, const double>())
       .def("solve", &registration::fracgm::solve);

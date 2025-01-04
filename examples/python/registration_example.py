@@ -1,14 +1,9 @@
 # Copyright 2025 Bang-Shien Chen.
 # All rights reserved. See LICENSE for the license information.
 
-import os
-import sys
 import numpy as np
 
-__dir__ = os.path.dirname(os.path.abspath(__file__))
 try:
-    path = os.path.join(__dir__, "../../build/python")
-    sys.path.append(path)
     import registration_python
 except ImportError:
     print("Make sure project was built with python binding.")

@@ -1,0 +1,11 @@
+from setuptools import setup
+
+setup(
+    name='registration_python',
+    version='1.0.0',
+    author='Bang-Shien Chen',
+    description='Python binding for FracGM and QGM',
+    package_dir={'': '${CMAKE_CURRENT_BINARY_DIR}'},
+    packages=['registration_python'],
+    package_data={'': ['*.so']}
+)

@@ -29,8 +29,7 @@ sudo apt update
 sudo apt install -y g++ build-essential cmake
 sudo apt install -y libeigen3-dev libomp-dev
 # python (optional)
-sudo apt install -y python3 python3-dev
-sudo apt install python3-numpy
+sudo apt install -y python3 python3-dev python3-venv
 
 git clone --recurse-submodules -j8 https://github.com/doggydoggy0101/master-thesis.git
 cd master-thesis
@@ -52,10 +51,16 @@ make
 
 ### (optional) Build with Python binding
 ```shell
+python3 -m venv .venv
+source .venv/bin/activate
+pip install numpy
+
 mkdir build
 cd build
 cmake .. -DBUILD_PYTHON=ON -DPYTHON_EXECUTABLE=$(which python3)
 make
+
+cd python && pip install .
 ```
 
 ## :books: Example Usages

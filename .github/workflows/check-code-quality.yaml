@@ -29,4 +29,4 @@ jobs:
           source: '.'
           exclude: './third-party'
           extensions: 'h,cpp'
-          clangFormatVersion: '18.1.8'
+          clangFormatVersion: '18.1.3'

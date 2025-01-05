@@ -49,11 +49,11 @@ def main():
             src_reg, dst_reg, noise_bound, pmc_timeout, pmc_n_threads
         )
 
-    fracgm_reg = registration_python.fracgm(max_iteration, tol, c, noise_bound).solve(
-        src_reg, dst_reg
+    fracgm_reg = registration_python.FracGM(max_iteration, tol, c).solve(
+        src_reg, dst_reg, noise_bound
     )
-    qgm_reg = registration_python.qgm(max_iteration, tol, c, noise_bound).solve(
-        src_reg, dst_reg
+    qgm_reg = registration_python.QGM(max_iteration, tol, c).solve(
+        src_reg, dst_reg, noise_bound
     )
 
     print("Ground truth:")

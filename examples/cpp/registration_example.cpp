@@ -10,9 +10,11 @@
 #include <tuple>
 #include <vector>
 
-#include "registration/fracgm.h"
+// #include "registration/fracgm.h"
 #include "registration/mcis.h"
-#include "registration/qgm.h"
+// #include "registration/qgm.h"
+
+#include "registration/solver.h"
 
 #define ENABLE_MAX_CLIQUE_INLIER_SELECTION
 
@@ -101,11 +103,11 @@ int main() {
   auto [inlier_src_reg, inlier_dst_reg] =
       perform_max_clique_inlier_selection(src_reg, dst_reg, noise_bound, pmc_timeout, pmc_n_threads);
 
-  auto fracgm_reg = registration::fracgm(max_iteration, tol, c, noise_bound).solve(inlier_src_reg, inlier_dst_reg);
-  auto qgm_reg = registration::qgm(max_iteration, tol, c, noise_bound).solve(inlier_src_reg, inlier_dst_reg);
+  auto fracgm_reg = registration::FracGM(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto qgm_reg = registration::QGM(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
 #else
-  auto fracgm_reg = registration::fracgm(max_iteration, tol, c, noise_bound).solve(src_reg, dst_reg);
-  auto qgm_reg = registration::qgm(max_iteration, tol, c, noise_bound).solve(src_reg, dst_reg);
+  auto fracgm_reg = registration::FracGM(max_iteration, tol, c).solve(src_reg, dst_reg, noise_bound);
+  auto qgm_reg = registration::QGM(max_iteration, tol, c).solve(src_reg, dst_reg, noise_bound);
 #endif
 
   std::cout << "Ground Truth:" << "\n" << gt_reg << "\n\n";

@@ -55,42 +55,30 @@ struct Fractional {
 };
 
 /**
- * Get the zero mean of a point cloud.
+ * @brief Get the zero mean of a point cloud.
  *
- * # Arguments
+ * @param pcd The point cloud to be computed.
  *
- * - `pcd` - The point cloud to be computed.
- *
- * # Returns
- *
- * - Turples of the zero mean point cloud and the mean vector.
+ * @return Turples of the zero mean point cloud and the mean vector.
  */
 std::pair<PointCloud, Eigen::Vector3d> get_zero_mean_point_cloud(const PointCloud pcd);
 
 /**
- * Project a 3 by 3 matrix onto the nearest rotation matrix.
+ * @brief Project a 3 by 3 matrix onto the nearest rotation matrix.
  *
- * # Arguments
+ * @param mat The matrix to be projected.
  *
- * - `mat` - The matrix to be projected.
- *
- * # Returns
- *
- * - The rotation matrix.
+ * @return The rotation matrix.
  */
 Eigen::Matrix3d project(const Eigen::Matrix3d mat);
 
 /**
- * Horn's closed-form solution for point cloud registration.
+ * @brief Horn's closed-form solution for point cloud registration.
  *
- * # Arguments
+ * @param pcd1 The source point cloud.
+ * @param pcd2 The target point cloud.
  *
- * - `pcd1` - The source point cloud.
- * - `pcd2` - The target point cloud.
- *
- * # Returns
- *
- * The estimated registration.
+ * @return The estimated registration.
  */
 Eigen::Matrix4d compute_initial_guess(PointCloud pcd1, PointCloud pcd2);
 
@@ -99,55 +87,41 @@ Eigen::Matrix4d compute_initial_guess(PointCloud pcd1, PointCloud pcd2);
  *
  * # Arguments
  *
- * - `pcd1`          - The source point cloud.
- * - `pcd2`          - The target point cloud.
- * - `noise_bound_2` - The square of noise bound.
+ * @param pcd1 The source point cloud.
+ * @param pcd2 The target point cloud.
+ * @param noise_bound_2 The square of noise bound.
  *
- * # Returns
- *
- * - A vector of quadratic matrices.
+ * @return A vector of quadratic matrices.
  */
 std::vector<Eigen::MatrixXd> compute_residual_terms(PointCloud pcd1, PointCloud pcd2, double noise_bound_2);
 
 /**
- * Compute the fractional terms.
+ * @brief Compute the fractional terms.
  *
- * # Arguments
+ * @param pcd1`          - The source point cloud.
+ * @param pcd2`          - The target point cloud.
+ * @param noise_bound_2` - The square of noise bound.
+ * @param c2`            - The square of threshold c.
  *
- * - `pcd1`          - The source point cloud.
- * - `pcd2`          - The target point cloud.
- * - `noise_bound_2` - The square of noise bound.
- * - `c2`            - The square of threshold c.
- *
- * # Returns
- *
- * - A vector of quadratic matrices.
+ * @return A vector of quadratic matrices.
  */
 std::vector<Fractional> compute_fractional_terms(PointCloud pcd1, PointCloud pcd2, double noise_bound_2, double c2);
 
 /**
- * Reshape matrix to vector.
+ * @brief Reshape matrix to vector.
  *
- * # Arguments
+ * @param mat` - The matrix to be reshaped.
  *
- * - `mat` - The matrix to be reshaped.
- *
- * # Returns
- *
- * - The reshaped vector.
+ * @return The reshaped vector.
  */
 Eigen::VectorXd se3_mat_to_vec(Eigen::Matrix4d mat);
 
 /**
- * Reshape vector to matrix.
+ * @brief Reshape vector to matrix.
  *
- * # Arguments
+ * @param vec` - The vector to be reshaped.
  *
- * - `vec` - The vector to be reshaped.
- *
- * # Returns
- *
- * - The reshaped matrix.
+ * @return The reshaped matrix.
  */
 Eigen::Matrix4d se3_vec_to_mat(Eigen::VectorXd vec);
 

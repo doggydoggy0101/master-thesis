@@ -1,4 +1,4 @@
-name: check-code-quality
+name: check-code
 
 on:
   pull_request:
@@ -10,15 +10,7 @@ on:
       - main
 
 jobs:
-  check-python-formatting:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Check Python code formatting
-        uses: chartboost/ruff-action@v1
-        with:
-          args: format --check
-  
+
   check-cpp-formatting:
     runs-on: ubuntu-latest
     steps:
@@ -30,3 +22,12 @@ jobs:
           exclude: './third-party'
           extensions: 'h,cpp'
           clangFormatVersion: '18.1.3'
+          
+  check-python-formatting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Python code formatting
+        uses: chartboost/ruff-action@v1
+        with:
+          args: format --check

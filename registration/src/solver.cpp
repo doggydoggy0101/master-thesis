@@ -88,7 +88,6 @@ Eigen::Matrix4d FracGM::solve(const PointCloud& pcd1, const PointCloud& pcd2, co
   return se3;
 }
 
-
 QGM::QGM(const size_t& max_iteration, const double& tolerance, const double& threshold_c) {
   this->max_iter = max_iteration;
   this->tol = tolerance;

@@ -24,7 +24,7 @@ namespace mcis {
 
 class Graph {
  public:
-  Graph() : num_edges_(0){};
+  Graph() : num_edges_(0) {};
 
   /**
    * Constructor that takes in an adjacency list. Notice that for an edge connecting two arbitrary
@@ -252,7 +252,7 @@ class MaxCliqueSolver {
 
   MaxCliqueSolver() = default;
 
-  MaxCliqueSolver(Params params) : params_(params){};
+  MaxCliqueSolver(Params params) : params_(params) {};
 
   /**
    * Find the maximum clique within the graph provided. By maximum clique, it means the clique of

@@ -73,16 +73,6 @@ std::pair<PointCloud, Eigen::Vector3d> get_zero_mean_point_cloud(const PointClou
 Eigen::Matrix3d project(const Eigen::Matrix3d mat);
 
 /**
- * @brief Horn's closed-form solution for point cloud registration.
- *
- * @param pcd1 The source point cloud.
- * @param pcd2 The target point cloud.
- *
- * @return The estimated registration.
- */
-Eigen::Matrix4d compute_initial_guess(PointCloud pcd1, PointCloud pcd2);
-
-/**
  * Compute the quadratic matrix of the square of residuals.
  *
  * # Arguments

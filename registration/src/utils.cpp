@@ -66,23 +66,6 @@ Eigen::Matrix3d project(const Eigen::Matrix3d mat) {
   return rot;
 }
 
-Eigen::Matrix4d compute_initial_guess(PointCloud pcd1, PointCloud pcd2) {
-  std::pair<Eigen::Matrix<double, Eigen::Dynamic, 3>, Eigen::Vector3d> pcd1_mean_pair = get_zero_mean_point_cloud(pcd1);
-  pcd1 << std::get<0>(pcd1_mean_pair);
-  Eigen::Vector3d mean1 = std::get<1>(pcd1_mean_pair);
-
-  std::pair<Eigen::Matrix<double, Eigen::Dynamic, 3>, Eigen::Vector3d> pcd2_mean_pair = get_zero_mean_point_cloud(pcd2);
-  pcd2 << std::get<0>(pcd2_mean_pair);
-  Eigen::Vector3d mean2 = std::get<1>(pcd2_mean_pair);
-
-  Eigen::Matrix4d mat = Eigen::Matrix4d::Identity(4, 4);
-  Eigen::Matrix3d rot = project(pcd2.transpose() * pcd1);
-  mat.block<3, 3>(0, 0) = rot;
-  mat.block<3, 1>(0, 3) = mean2 - rot * mean1;
-
-  return mat;
-}
-
 std::vector<Eigen::MatrixXd> compute_residual_terms(PointCloud pcd1, PointCloud pcd2, double noise_bound_2) {
   std::vector<Eigen::MatrixXd> terms;
   terms.reserve(pcd1.rows());

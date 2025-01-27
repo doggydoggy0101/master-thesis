@@ -1,7 +1,7 @@
 project(registration_src)
 include(GNUInstallDirs)
 
-add_library(registration SHARED src/solver.cpp src/utils.cpp src/graph.cpp src/mcis.cpp)
+add_library(registration SHARED src/solver.cpp src/utils.cpp src/mcis.cpp src/tuple.cpp)
 target_include_directories(registration PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

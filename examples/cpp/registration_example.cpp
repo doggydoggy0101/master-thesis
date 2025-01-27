@@ -10,13 +10,9 @@
 #include <tuple>
 #include <vector>
 
-// #include "registration/fracgm.h"
-#include "registration/mcis.h"
-// #include "registration/qgm.h"
-
+#include "registration/mcis.h"  // maximum clique inlier selection
 #include "registration/solver.h"
-
-#define ENABLE_MAX_CLIQUE_INLIER_SELECTION
+#include "registration/tuple.h"  // tuple test
 
 using PointCloud = Eigen::Matrix<double, Eigen::Dynamic, 3, Eigen::RowMajor>;
 
@@ -69,10 +65,28 @@ std::tuple<PointCloud, PointCloud, Eigen::Matrix<double, 4, 4, Eigen::RowMajor>>
   return std::make_tuple(src, dst, gt);
 }
 
-std::tuple<PointCloud, PointCloud> perform_max_clique_inlier_selection(const PointCloud &pc1, const PointCloud &pc2,
-                                                                       double noise_bound, double pmc_timeout,
-                                                                       int pmc_n_threads) {
-  auto indices = registration::mcis::inlier_selection(pc1, pc2, noise_bound, pmc_timeout, pmc_n_threads);
+std::tuple<PointCloud, PointCloud> perform_mcis(const PointCloud &pc1, const PointCloud &pc2, double noise_bound,
+                                                double pmc_timeout, int pmc_n_threads) {
+  auto indices = registration::outlier_rejection::maximum_clique_inlier_selection(pc1, pc2, noise_bound, pmc_timeout,
+                                                                                  pmc_n_threads);
+
+  if (indices.empty()) return std::make_tuple(pc1, pc2);
+
+  PointCloud inlier_pc1(indices.size(), 3);
+  PointCloud inlier_pc2(indices.size(), 3);
+
+  for (size_t idx = 0; idx < indices.size(); idx++) {
+    auto index = indices[idx];
+    inlier_pc1.row(idx) = pc1.row(index);
+    inlier_pc2.row(idx) = pc2.row(index);
+  }
+
+  return std::make_tuple(inlier_pc1, inlier_pc2);
+}
+
+std::tuple<PointCloud, PointCloud> perform_tuple(const PointCloud &pc1, const PointCloud &pc2, double tuple_scale,
+                                                 int max_tuple_count) {
+  auto indices = registration::outlier_rejection::tuple_test(pc1, pc2, tuple_scale, max_tuple_count);
 
   if (indices.empty()) return std::make_tuple(pc1, pc2);
 
@@ -94,21 +108,31 @@ int main() {
   double c = 1.0;
   double noise_bound = 0.1;
 
+  // outlier rejection method
+  std::string method = "mcis";  // "mcis" or "tuple"
+  // mcis
   double pmc_timeout = 3600.0;
   int pmc_n_threads = 4;
+  // tuple
+  double tuple_scale = 0.95;
+  int max_tuple_count = 1000;
 
   auto [src_reg, dst_reg, gt_reg] = get_toy_data();
 
-#ifdef ENABLE_MAX_CLIQUE_INLIER_SELECTION
-  auto [inlier_src_reg, inlier_dst_reg] =
-      perform_max_clique_inlier_selection(src_reg, dst_reg, noise_bound, pmc_timeout, pmc_n_threads);
+  PointCloud inlier_src_reg, inlier_dst_reg;
+
+  if (method == "mcis") {
+    std::cout << "Debug" << "\n\n";
+    std::tie(inlier_src_reg, inlier_dst_reg) = perform_mcis(src_reg, dst_reg, noise_bound, pmc_timeout, pmc_n_threads);
+  } else if (method == "tuple") {
+    std::tie(inlier_src_reg, inlier_dst_reg) = perform_tuple(src_reg, dst_reg, tuple_scale, max_tuple_count);
+  } else {
+    inlier_src_reg = src_reg;
+    inlier_dst_reg = dst_reg;
+  }
 
   auto fracgm_reg = registration::FracGM(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
   auto qgm_reg = registration::QGM(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-#else
-  auto fracgm_reg = registration::FracGM(max_iteration, tol, c).solve(src_reg, dst_reg, noise_bound);
-  auto qgm_reg = registration::QGM(max_iteration, tol, c).solve(src_reg, dst_reg, noise_bound);
-#endif
 
   std::cout << "Ground Truth:" << "\n" << gt_reg << "\n\n";
   std::cout << "FracGM:" << "\n" << fracgm_reg << "\n\n";

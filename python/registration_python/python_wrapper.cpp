@@ -8,6 +8,7 @@
 #include <pybind11/stl.h>
 #include <registration/mcis.h>
 #include <registration/solver.h>
+#include <registration/tuple.h>
 
 namespace py = pybind11;
 
@@ -21,6 +22,7 @@ PYBIND11_MODULE(registration_python, module) {
       .def("solve", &registration::QGM::solve);
 
   py::module_ outlier_rejection = module.def_submodule("outlier_rejection");
-  outlier_rejection.def("maximum_clique_inlier_selection",
-                        &registration::outlier_rejection::maximum_clique_inlier_selection);
+  outlier_rejection
+      .def("maximum_clique_inlier_selection", &registration::outlier_rejection::maximum_clique_inlier_selection)
+      .def("tuple_test", &registration::outlier_rejection::tuple_test);
 }

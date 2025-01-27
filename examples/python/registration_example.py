@@ -24,11 +24,16 @@ def get_toy_data():
     return src, dst, gt
 
 
-def perform_max_clique_inlier_selection(
-    src, dst, noise_bound, pmc_timeout, pmc_n_threads
-):
+def perform_mcis(src, dst, noise_bound, pmc_timeout, pmc_n_threads):
     indices = registration_python.outlier_rejection.maximum_clique_inlier_selection(
         src, dst, noise_bound, pmc_timeout, pmc_n_threads
+    )
+    return np.take(src, indices, axis=0), np.take(dst, indices, axis=0)
+
+
+def perform_tuple(src, dst, tuple_scale, max_tuple_count):
+    indices = registration_python.outlier_rejection.tuple_test(
+        src, dst, tuple_scale, max_tuple_count
     )
     return np.take(src, indices, axis=0), np.take(dst, indices, axis=0)
 
@@ -39,15 +44,23 @@ def main():
     c = 1.0
     noise_bound = 0.1
 
-    ENABLE_MAX_CLIQUE_INLIER_SELECTION = True
+    # outlier rejection
+    method = "mcis"  # "mcis" or "tuple"
+    # mcis
     pmc_timeout = 3600.0
     pmc_n_threads = 4
+    # tuple
+    tuple_scale = 0.95
+    max_tuple_count = 1000
+
     src_reg, dst_reg, gt_reg = get_toy_data()
 
-    if ENABLE_MAX_CLIQUE_INLIER_SELECTION:
-        src_reg, dst_reg = perform_max_clique_inlier_selection(
+    if method == "mcis":
+        src_reg, dst_reg = perform_mcis(
             src_reg, dst_reg, noise_bound, pmc_timeout, pmc_n_threads
         )
+    elif method == "tuple":
+        src_reg, dst_reg = perform_tuple(src_reg, dst_reg, tuple_scale, max_tuple_count)
 
     fracgm_reg = registration_python.FracGM(max_iteration, tol, c).solve(
         src_reg, dst_reg, noise_bound

@@ -27,7 +27,7 @@ def get_toy_data():
 def perform_max_clique_inlier_selection(
     src, dst, noise_bound, pmc_timeout, pmc_n_threads
 ):
-    indices = registration_python.mcis.inlier_selection(
+    indices = registration_python.outlier_rejection.maximum_clique_inlier_selection(
         src, dst, noise_bound, pmc_timeout, pmc_n_threads
     )
     return np.take(src, indices, axis=0), np.take(dst, indices, axis=0)

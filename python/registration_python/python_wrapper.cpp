@@ -20,6 +20,7 @@ PYBIND11_MODULE(registration_python, module) {
       .def(py::init<const size_t, const double, const double>())
       .def("solve", &registration::QGM::solve);
 
-  py::module_ mcis = module.def_submodule("mcis");
-  mcis.def("inlier_selection", &registration::mcis::inlier_selection);
+  py::module_ outlier_rejection = module.def_submodule("outlier_rejection");
+  outlier_rejection.def("maximum_clique_inlier_selection",
+                        &registration::outlier_rejection::maximum_clique_inlier_selection);
 }

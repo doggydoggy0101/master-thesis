@@ -10,10 +10,7 @@
 #include <tuple>
 #include <vector>
 
-// #include "registration/fracgm.h"
-#include "registration/mcis.h"
-// #include "registration/qgm.h"
-
+#include "registration/mcis.h"  // maximum clique inlier selection
 #include "registration/solver.h"
 
 #define ENABLE_MAX_CLIQUE_INLIER_SELECTION
@@ -72,7 +69,8 @@ std::tuple<PointCloud, PointCloud, Eigen::Matrix<double, 4, 4, Eigen::RowMajor>>
 std::tuple<PointCloud, PointCloud> perform_max_clique_inlier_selection(const PointCloud &pc1, const PointCloud &pc2,
                                                                        double noise_bound, double pmc_timeout,
                                                                        int pmc_n_threads) {
-  auto indices = registration::mcis::inlier_selection(pc1, pc2, noise_bound, pmc_timeout, pmc_n_threads);
+  auto indices = registration::outlier_rejection::maximum_clique_inlier_selection(pc1, pc2, noise_bound, pmc_timeout,
+                                                                                  pmc_n_threads);
 
   if (indices.empty()) return std::make_tuple(pc1, pc2);
 

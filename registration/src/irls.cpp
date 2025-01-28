@@ -29,6 +29,28 @@ std::vector<Eigen::MatrixXd> compute_terms(PointCloud pcd1, PointCloud pcd2, dou
   return terms;
 }
 
+std::pair<Eigen::MatrixXd, Eigen::VectorXd> updateWeight(std::vector<Eigen::MatrixXd>& terms, Eigen::VectorXd& x,
+                                                         std::string& robust, double& c) {
+  Eigen::MatrixXd mat_w = Eigen::MatrixXd::Zero(13, 13);
+  Eigen::VectorXd vec_w = Eigen::VectorXd::Zero(terms.size());
+
+  if (robust == "TLS") {
+    for (size_t i = 0; i < terms.size(); i++) {
+      if (x.transpose() * terms[i] * x <= c * c) {
+        mat_w += terms[i];
+        vec_w[i] = 1.0;
+      }
+    }
+  } else if (robust == "GM") {
+    for (size_t i = 0; i < terms.size(); i++) {
+      double w_i = 1.0 / ((x.transpose() * terms[i] * x + c * c) * (x.transpose() * terms[i] * x + c * c));
+      mat_w += w_i * terms[i];
+      vec_w[i] = w_i;
+    }
+  }
+  return std::make_pair(mat_w, vec_w);
+}
+
 };  // namespace irls
 
 };  // namespace registration

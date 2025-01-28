@@ -7,11 +7,13 @@
 
 #include <Eigen/Dense>
 #include <vector>
-#include <utility>
 #include <string>
+#include <cmath>
+#include <algorithm>
 
-#include "registration/irls.h"
 #include "registration/fracgm.h"
+#include "registration/irls.h"
+#include "registration/gnc.h"
 #include "registration/utils.h"
 
 namespace registration {
@@ -20,11 +22,13 @@ using PointCloud = Eigen::Matrix<double, Eigen::Dynamic, 3>;
 
 class AbstractSolver {
  protected:
-  size_t max_iter; // Maximum number of iterations.
-  double tol;      // Tolerance for early stopping.
+  size_t max_iter;     // Maximum number of iterations.
+  double tol;          // Tolerance for early stopping.
+  std::string robust;  // Robust function.
+  double c;            // Threshold c.
 
  private:
-  Eigen::Vector<double, 13> temp; // Quadratic program.
+  Eigen::Vector<double, 13> temp;  // Quadratic program.
 
  public:
   virtual ~AbstractSolver() {}
@@ -57,7 +61,7 @@ class AbstractSolver {
    *
    * @return Solution of the quadratic program.
    */
-  Eigen::VectorXd solveQuadraticProgram(Eigen::MatrixXd& mat){
+  Eigen::VectorXd solveQuadraticProgram(Eigen::MatrixXd& mat) {
     if (mat.fullPivLu().rank() == mat.rows()) {
       // solve by closed-form
       temp = mat.ldlt().solve(e);
@@ -75,52 +79,65 @@ class AbstractSolver {
 };
 
 class IrlsSolver : public AbstractSolver {
- protected:
-  std::string robust; // Robust function.
-  double c;           // Threshold c.
-
  private:
-  Eigen::MatrixXd mat_w; // weighted quadratic term
-  Eigen::VectorXd vec_w; // weight vector
-  Eigen::VectorXd x;     // solution vector
-  Eigen::Matrix4d se3;   // solution matrix
+  Eigen::MatrixXd mat_w;  // weighted quadratic term
+  Eigen::VectorXd vec_w;  // weight vector
+  Eigen::VectorXd x;      // solution vector
+  Eigen::Matrix4d se3;    // solution matrix
 
  public:
   /**
-   * @brief QGM-based registration solver with linear relaxation.
+   * @brief IRLS-based registration solver with linear relaxation.
    *
    * @param max_iteration The maximum number of iterations allowed.
    * @param tolerance The tolerance for convergence.
    * @param robust_type Robust function: Truncated Least Squares (TLS) or Geman-McClure (GM).
    * @param threshold_c The parameter $c$ of the robust function.
    */
-  IrlsSolver(const size_t& max_iteration = 1000, const double& tolerance = 1e-6, const std::string& robust_type = "GM", const double& threshold_c = 0.1);
+  IrlsSolver(const size_t& max_iteration = 1000, const double& tolerance = 1e-6, const std::string& robust_type = "GM",
+             const double& threshold_c = 0.1);
 
+  /// @brief Solve the point cloud registration problem.
+  Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) override;
+};
+
+class GncSolver : public AbstractSolver {
+ protected:
+  double gnc_factor_;  // surrogate parameter's update step size
+  double weight_tol;   // stopping critera for TLS weight
+
+ private:
+  Eigen::MatrixXd mat_w;  // weighted quadratic term
+  Eigen::VectorXd vec_w;  // weight vector
+  Eigen::VectorXd x;      // solution vector
+  Eigen::Matrix4d se3;    // solution matrix
+  double mu;              // surrogate paramter
+
+ public:
   /**
-   * @brief Weight update in the QGM algorithm.
+   * @brief GNC-based registration solver with linear relaxation.
    *
-   * @param terms A vector of the quadratic terms of square of residuals.
-   * @param x The variable.
-   *
-   * @return The weighted quadratic term for the quadratic program.
-   * @return The weight vector.
+   * @param max_iteration The maximum number of iterations allowed.
+   * @param tolerance The tolerance for convergence.
+   * @param robust_type Robust function: Truncated Least Squares (TLS) or Geman-McClure (GM).
+   * @param threshold_c The parameter $c$ of the robust function.
+   * @param gnc_factor Surrogate parameter's update step size.
+   * @param weight_tolerance Stopping critera for weights being binary.
    */
-  std::pair<Eigen::MatrixXd, Eigen::VectorXd> updateWeight(std::vector<Eigen::MatrixXd>& terms, Eigen::VectorXd& x);
+  GncSolver(const size_t& max_iteration = 1000, const double& tolerance = 1e-6, const std::string& robust_type = "GM",
+            const double& threshold_c = 0.1, const double& gnc_factor = 1.4, const double& weight_tolerance = 1e-4);
 
   /// @brief Solve the point cloud registration problem.
   Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) override;
 };
 
 class FracgmSolver : public AbstractSolver {
- protected:
-  double c;         // Threshold c in the Geman-McClure function.
-
  private:
-  Eigen::MatrixXd mat_w;           // weighted quadratic term
-  Eigen::VectorXd x;               // solution vector
-  Eigen::Matrix4d se3;             // solution matrix
-  std::vector<double> alpha;       // auxiliary variables
-  float psi_norm;                  // stopping criteria
+  Eigen::MatrixXd mat_w;      // weighted quadratic term
+  Eigen::VectorXd x;          // solution vector
+  Eigen::Matrix4d se3;        // solution matrix
+  std::vector<double> alpha;  // auxiliary variables
+  float psi_norm;             // stopping criteria
 
  public:
   /**
@@ -131,25 +148,6 @@ class FracgmSolver : public AbstractSolver {
    * @param threshold_c The parameter $c$ of the Geman-McClure function.
    */
   FracgmSolver(const size_t& max_iteration, const double& tolerance, const double& threshold_c);
-
-  /**
-   * @brief Auxiliary variables update in the FracGM algorithm.
-   *
-   * @param terms A vector of fractional terms.
-   *
-   * @return The auxiliary variables.
-   */
-  std::vector<double> updateAuxiliaryVariables(std::vector<fracgm::Fractional>* terms);
-
-  /**
-   * @brief Weight update in the FracGM algorithm.
-   *
-   * @param alpha The auxiliary variables.
-   * @param terms A vector of the quadratic terms of square of residuals.
-   *
-   * @return The weighted quadratic term for the quadratic program.
-   */
-  Eigen::MatrixXd updateWeight(std::vector<double>* alpha, std::vector<fracgm::Fractional>* terms);
 
   /// @brief Solve the point cloud registration problem.
   Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) override;

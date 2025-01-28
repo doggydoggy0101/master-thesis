@@ -43,6 +43,8 @@ def main():
     tol = 1e-6
     c = 1.0
     noise_bound = 0.1
+    gnc_factor = 1.4
+    weight_tol = 1e-4
 
     # outlier rejection
     method = "mcis"  # "mcis" or "tuple"
@@ -68,6 +70,12 @@ def main():
     irls_gm_reg = registration_python.IrlsSolver(max_iteration, tol, "GM", c).solve(
         src_reg, dst_reg, noise_bound
     )
+    gnc_tls_reg = registration_python.GncSolver(max_iteration, tol, "TLS", c, gnc_factor, weight_tol).solve(
+        src_reg, dst_reg, noise_bound
+    )
+    gnc_gm_reg = registration_python.GncSolver(max_iteration, tol, "GM", c, gnc_factor, weight_tol).solve(
+        src_reg, dst_reg, noise_bound
+    )
     fracgm_reg = registration_python.FracgmSolver(max_iteration, tol, c).solve(
         src_reg, dst_reg, noise_bound
     )
@@ -80,6 +88,12 @@ def main():
 
     print("IRLS-GM:")
     print(irls_gm_reg, end="\n\n")
+
+    print("GNC-TLS:")
+    print(gnc_tls_reg, end="\n\n")
+
+    print("GNC-GM:")
+    print(gnc_gm_reg, end="\n\n")
 
     print("FracGM:")
     print(fracgm_reg, end="\n\n")

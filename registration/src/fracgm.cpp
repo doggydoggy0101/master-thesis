@@ -61,27 +61,49 @@ std::vector<Fractional> compute_terms(PointCloud pcd1, PointCloud pcd2, double n
   return terms;
 }
 
-float compute_psi_norm(std::vector<double>* alpha, std::vector<Fractional>* terms) {
+std::vector<double> updateAuxiliaryVariables(std::vector<Fractional>& terms) {
+  std::vector<double> vec_1;  // beta
+  std::vector<double> vec_2;  // mu
+
+  for (auto& term : terms) {
+    vec_1.push_back(term.f() / term.h());
+    vec_2.push_back(1 / term.h());
+  }
+
+  vec_1.insert(vec_1.end(), vec_2.begin(), vec_2.end());
+  return vec_1;
+}
+
+Eigen::MatrixXd updateWeight(std::vector<double>& alpha, std::vector<Fractional>& terms) {
+  Eigen::MatrixXd mat = Eigen::MatrixXd::Zero(13, 13);
+  int n = terms.size();
+
+  for (int i = 0; i < n; i++) {
+    mat += alpha.at(n + i) * terms.at(i).f_mat() - alpha.at(n + i) * alpha.at(i) * terms.at(i).h_mat();
+  }
+  return mat;
+}
+
+float compute_psi_norm(std::vector<double>& alpha, std::vector<Fractional>& terms) {
   float a;
   float b;
-  int n = terms->size();
+  int n = terms.size();
 
   float loss = 0.0;
   for (int i = 0; i < n; i++) {
-    a = -terms->at(i).f() + alpha->at(i) * terms->at(i).h();
-    b = -1.0 + alpha->at(n + i) * terms->at(i).h();
+    a = -terms.at(i).f() + alpha.at(i) * terms.at(i).h();
+    b = -1.0 + alpha.at(n + i) * terms.at(i).h();
     loss += a * a + b * b;
   }
   return sqrt(loss);
 }
 
-void update_terms_cache(std::vector<Fractional>* terms, Eigen::VectorXd* vec) {
-  for (auto& term : *terms) {
-    term.update_cache(*vec);
+void update_terms_cache(std::vector<Fractional>& terms, Eigen::VectorXd& vec) {
+  for (auto& term : terms) {
+    term.update_cache(vec);
   }
 }
 
-}; // namespace fracgm
-
+};  // namespace fracgm
 
 };  // namespace registration

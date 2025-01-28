@@ -5,9 +5,9 @@
 
 #pragma once
 
-#include <vector>
 #include <Eigen/Dense>
 #include <unsupported/Eigen/KroneckerProduct>
+#include <vector>
 
 #include "registration/constant.h"
 
@@ -69,11 +69,30 @@ struct Fractional {
  */
 std::vector<Fractional> compute_terms(PointCloud pcd1, PointCloud pcd2, double noise_bound_2, double c2);
 
+/**
+ * @brief Auxiliary variables update in the FracGM algorithm.
+ *
+ * @param terms A vector of fractional terms.
+ *
+ * @return The auxiliary variables.
+ */
+std::vector<double> updateAuxiliaryVariables(std::vector<Fractional>& terms);
+
+/**
+ * @brief Weight update in the FracGM algorithm.
+ *
+ * @param alpha The auxiliary variables.
+ * @param terms A vector of the quadratic terms of square of residuals.
+ *
+ * @return The weighted quadratic term for the quadratic program.
+ */
+Eigen::MatrixXd updateWeight(std::vector<double>& alpha, std::vector<Fractional>& terms);
+
 /// @brief Compute the norm of psi for stopping criteria.
-float compute_psi_norm(std::vector<double>* alpha, std::vector<Fractional>* terms);
+float compute_psi_norm(std::vector<double>& alpha, std::vector<Fractional>& terms);
 
 /// @brief Update the cache in each fractional term.
-void update_terms_cache(std::vector<Fractional>* terms, Eigen::VectorXd* vec);
+void update_terms_cache(std::vector<Fractional>& terms, Eigen::VectorXd& vec);
 
 };  // namespace fracgm
 

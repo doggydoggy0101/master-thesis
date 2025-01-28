@@ -131,8 +131,8 @@ int main() {
     inlier_dst_reg = dst_reg;
   }
 
-  auto fracgm_reg = registration::FracGM(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-  auto qgm_reg = registration::QGM(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto fracgm_reg = registration::FracgmSolver(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto qgm_reg = registration::IrlsSolver(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
 
   std::cout << "Ground Truth:" << "\n" << gt_reg << "\n\n";
   std::cout << "FracGM:" << "\n" << fracgm_reg << "\n\n";

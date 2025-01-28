@@ -62,10 +62,10 @@ def main():
     elif method == "tuple":
         src_reg, dst_reg = perform_tuple(src_reg, dst_reg, tuple_scale, max_tuple_count)
 
-    fracgm_reg = registration_python.FracGM(max_iteration, tol, c).solve(
+    fracgm_reg = registration_python.FracgmSolver(max_iteration, tol, c).solve(
         src_reg, dst_reg, noise_bound
     )
-    qgm_reg = registration_python.QGM(max_iteration, tol, c).solve(
+    qgm_reg = registration_python.IrlsSolver(max_iteration, tol, c).solve(
         src_reg, dst_reg, noise_bound
     )
 

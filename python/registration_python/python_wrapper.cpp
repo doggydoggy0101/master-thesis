@@ -13,13 +13,13 @@
 namespace py = pybind11;
 
 PYBIND11_MODULE(registration_python, module) {
-  py::class_<registration::FracGM>(module, "FracGM")
+  py::class_<registration::FracgmSolver>(module, "FracgmSolver")
       .def(py::init<const size_t, const double, const double>())
-      .def("solve", &registration::FracGM::solve);
+      .def("solve", &registration::FracgmSolver::solve);
 
-  py::class_<registration::QGM>(module, "QGM")
+  py::class_<registration::IrlsSolver>(module, "IrlsSolver")
       .def(py::init<const size_t, const double, const double>())
-      .def("solve", &registration::QGM::solve);
+      .def("solve", &registration::IrlsSolver::solve);
 
   py::module_ outlier_rejection = module.def_submodule("outlier_rejection");
   outlier_rejection

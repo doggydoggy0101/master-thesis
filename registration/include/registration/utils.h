@@ -55,15 +55,6 @@ struct Fractional {
 };
 
 /**
- * @brief Get the zero mean of a point cloud.
- *
- * @param pcd The point cloud to be computed.
- *
- * @return Turples of the zero mean point cloud and the mean vector.
- */
-std::pair<PointCloud, Eigen::Vector3d> get_zero_mean_point_cloud(const PointCloud pcd);
-
-/**
  * @brief Project a 3 by 3 matrix onto the nearest rotation matrix.
  *
  * @param mat The matrix to be projected.

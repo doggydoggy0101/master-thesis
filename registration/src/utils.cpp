@@ -41,16 +41,6 @@ double Fractional::h() { return r2.cache + c2; }
 Eigen::MatrixXd Fractional::f_mat() { return c2 * r2.mat; }
 Eigen::MatrixXd Fractional::h_mat() { return r2.mat; }
 
-std::pair<PointCloud, Eigen::Vector3d> get_zero_mean_point_cloud(PointCloud pcd) {
-  Eigen::Vector3d mean = pcd.colwise().mean();
-
-  for (int i = 0; i < pcd.rows(); i++) {
-    pcd.row(i) -= mean.transpose();
-  }
-
-  return std::make_pair(pcd, mean);
-}
-
 Eigen::Matrix3d project(const Eigen::Matrix3d mat) {
   Eigen::JacobiSVD<Eigen::Matrix3d> svd(mat, Eigen::ComputeFullU | Eigen::ComputeFullV);
   Eigen::Matrix3d U = svd.matrixU();

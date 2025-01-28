@@ -75,7 +75,7 @@ Eigen::Matrix4d GncSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2,
     mat_w += mat_i;
     double res2 = x.transpose() * mat_i * x;
     if (res2 > max_res2) {
-      max_res2 = res2; 
+      max_res2 = res2;
     }
   }
 
@@ -94,11 +94,8 @@ Eigen::Matrix4d GncSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2,
     x = solveQuadraticProgram(mat_w);
     // stopping criteria
     curr_cost = x.transpose() * mat_w * x;
-    if (
-      checkCostConvergence(prev_cost, curr_cost) ||
-      gnc::check_mu_convergence(mu, this->robust) ||
-      gnc::check_weight_convergence(vec_w, this->robust, this->weight_tol)
-      ) {
+    if (checkCostConvergence(prev_cost, curr_cost) || gnc::check_mu_convergence(mu, this->robust) ||
+        gnc::check_weight_convergence(vec_w, this->robust, this->weight_tol)) {
       break;
     }
     prev_cost = curr_cost;

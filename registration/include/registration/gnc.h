@@ -5,13 +5,12 @@
 
 #pragma once
 
-#include <algorithm>
-#include <string>
-#include <utility>
-#include <cmath>
-
 #include <Eigen/Dense>
+#include <algorithm>
+#include <cmath>
+#include <string>
 #include <unsupported/Eigen/KroneckerProduct>
+#include <utility>
 
 #include "registration/constant.h"
 

@@ -289,8 +289,8 @@ namespace outlier_rejection {
  * # Returns
  * Indices of inlier correspondences.
  */
-std::vector<int> maximum_clique_inlier_selection(const PointCloud& src, const PointCloud& dst, double noise_bound,
-                                                 double pmc_timeout, int pmc_n_threads);
+std::vector<int> maximum_clique_inlier_selection(const PointCloud& src, const PointCloud& dst, const double noise_bound,
+                                                 double pmc_timeout = 3600.0, int pmc_n_threads = 4);
 
 }  // namespace outlier_rejection
 

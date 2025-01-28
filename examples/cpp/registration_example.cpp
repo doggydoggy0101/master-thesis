@@ -130,11 +130,16 @@ int main() {
     inlier_dst_reg = dst_reg;
   }
 
-  auto irls_tls_reg = registration::IrlsSolver(max_iteration, tol, "TLS", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-  auto irls_gm_reg = registration::IrlsSolver(max_iteration, tol, "GM", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-  auto gnc_tls_reg = registration::GncSolver(max_iteration, tol, "TLS", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-  auto gnc_gm_reg = registration::GncSolver(max_iteration, tol, "GM", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-  auto fracgm_reg = registration::FracgmSolver(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto irls_tls_reg =
+      registration::IrlsSolver(max_iteration, tol, "TLS", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto irls_gm_reg =
+      registration::IrlsSolver(max_iteration, tol, "GM", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto gnc_tls_reg =
+      registration::GncSolver(max_iteration, tol, "TLS", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto gnc_gm_reg =
+      registration::GncSolver(max_iteration, tol, "GM", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto fracgm_reg =
+      registration::FracgmSolver(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
 
   std::cout << "Ground Truth:" << "\n" << gt_reg << "\n\n";
   std::cout << "IRLS-TLS:" << "\n" << irls_tls_reg << "\n\n";

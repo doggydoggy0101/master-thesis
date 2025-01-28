@@ -35,7 +35,7 @@ double compute_initial_mu(double& res_sq, std::string& robust, double& c) {
     mu = (c * c) / (2 * res_sq - c * c);
     // if the residual is very large, set threshold of 1e-6 to avoid mu = 0
     if (mu >= 0 && mu < 1e-6) {
-        mu = 1e-6;
+      mu = 1e-6;
     }
   } else if (robust == "GM") {
     mu = (2 * res_sq) / (c * c);

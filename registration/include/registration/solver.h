@@ -6,14 +6,14 @@
 #pragma once
 
 #include <Eigen/Dense>
-#include <vector>
-#include <string>
-#include <cmath>
 #include <algorithm>
+#include <cmath>
+#include <string>
+#include <vector>
 
 #include "registration/fracgm.h"
-#include "registration/irls.h"
 #include "registration/gnc.h"
+#include "registration/irls.h"
 #include "registration/utils.h"
 
 namespace registration {
@@ -95,10 +95,10 @@ class IrlsSolver : public AbstractSolver {
    * @param threshold_c The parameter $c$ of the robust function.
    */
   IrlsSolver(const size_t& max_iteration = 1000, const double& tolerance = 1e-6, const std::string& robust_type = "GM",
-             const double& threshold_c = 0.1);
+             const double& threshold_c = 1.0);
 
   /// @brief Solve the point cloud registration problem.
-  Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) override;
+  Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound = 0.1) override;
 };
 
 class GncSolver : public AbstractSolver {
@@ -125,10 +125,10 @@ class GncSolver : public AbstractSolver {
    * @param weight_tolerance Stopping critera for weights being binary.
    */
   GncSolver(const size_t& max_iteration = 1000, const double& tolerance = 1e-6, const std::string& robust_type = "GM",
-            const double& threshold_c = 0.1, const double& gnc_factor = 1.4, const double& weight_tolerance = 1e-4);
+            const double& threshold_c = 1.0, const double& gnc_factor = 1.4, const double& weight_tolerance = 1e-4);
 
   /// @brief Solve the point cloud registration problem.
-  Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) override;
+  Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound = 0.1) override;
 };
 
 class FracgmSolver : public AbstractSolver {
@@ -147,10 +147,10 @@ class FracgmSolver : public AbstractSolver {
    * @param tolerance The tolerance for convergence.
    * @param threshold_c The parameter $c$ of the Geman-McClure function.
    */
-  FracgmSolver(const size_t& max_iteration, const double& tolerance, const double& threshold_c);
+  FracgmSolver(const size_t& max_iteration = 1000, const double& tolerance = 1e-6, const double& threshold_c = 1.0);
 
   /// @brief Solve the point cloud registration problem.
-  Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) override;
+  Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound = 0.1) override;
 };
 
 }  // namespace registration

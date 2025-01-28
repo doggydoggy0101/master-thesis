@@ -122,7 +122,6 @@ int main() {
   PointCloud inlier_src_reg, inlier_dst_reg;
 
   if (method == "mcis") {
-    std::cout << "Debug" << "\n\n";
     std::tie(inlier_src_reg, inlier_dst_reg) = perform_mcis(src_reg, dst_reg, noise_bound, pmc_timeout, pmc_n_threads);
   } else if (method == "tuple") {
     std::tie(inlier_src_reg, inlier_dst_reg) = perform_tuple(src_reg, dst_reg, tuple_scale, max_tuple_count);
@@ -131,12 +130,23 @@ int main() {
     inlier_dst_reg = dst_reg;
   }
 
-  auto fracgm_reg = registration::FracGM(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-  auto qgm_reg = registration::QGM(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto irls_tls_reg =
+      registration::IrlsSolver(max_iteration, tol, "TLS", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto irls_gm_reg =
+      registration::IrlsSolver(max_iteration, tol, "GM", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto gnc_tls_reg =
+      registration::GncSolver(max_iteration, tol, "TLS", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto gnc_gm_reg =
+      registration::GncSolver(max_iteration, tol, "GM", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  auto fracgm_reg =
+      registration::FracgmSolver(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
 
   std::cout << "Ground Truth:" << "\n" << gt_reg << "\n\n";
+  std::cout << "IRLS-TLS:" << "\n" << irls_tls_reg << "\n\n";
+  std::cout << "IRLS-GM:" << "\n" << irls_gm_reg << "\n\n";
+  std::cout << "GNC-TLS:" << "\n" << gnc_tls_reg << "\n\n";
+  std::cout << "GNC-GM:" << "\n" << gnc_gm_reg << "\n\n";
   std::cout << "FracGM:" << "\n" << fracgm_reg << "\n\n";
-  std::cout << "QGM:" << "\n" << qgm_reg << "\n\n";
 
   return 0;
 }

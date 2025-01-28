@@ -7,50 +7,6 @@
 
 namespace registration {
 
-// R2Sym
-R2Sym::R2Sym() {
-  mat = Eigen::MatrixXd::Zero(13, 13);
-  cache = 0.0;
-}
-
-R2Sym::R2Sym(Eigen::MatrixXd mat_) {
-  mat = mat_;
-  cache = 0.0;
-}
-
-R2Sym::R2Sym(Eigen::MatrixXd mat_, double cache_) {
-  mat = mat_;
-  cache = cache_;
-}
-
-double R2Sym::call(Eigen::VectorXd x) { return x.transpose() * mat * x; }
-
-void R2Sym::update_cache(Eigen::VectorXd x) { cache = call(x); }
-
-// Fractional
-Fractional::Fractional(R2Sym r2_, double c2_) {
-  r2 = r2_;
-  c2 = c2_;
-}
-
-void Fractional::update_cache(Eigen::VectorXd x) { r2.update_cache(x); }
-
-double Fractional::f() { return c2 * r2.cache; }
-double Fractional::h() { return r2.cache + c2; }
-
-Eigen::MatrixXd Fractional::f_mat() { return c2 * r2.mat; }
-Eigen::MatrixXd Fractional::h_mat() { return r2.mat; }
-
-std::pair<PointCloud, Eigen::Vector3d> get_zero_mean_point_cloud(PointCloud pcd) {
-  Eigen::Vector3d mean = pcd.colwise().mean();
-
-  for (int i = 0; i < pcd.rows(); i++) {
-    pcd.row(i) -= mean.transpose();
-  }
-
-  return std::make_pair(pcd, mean);
-}
-
 Eigen::Matrix3d project(const Eigen::Matrix3d mat) {
   Eigen::JacobiSVD<Eigen::Matrix3d> svd(mat, Eigen::ComputeFullU | Eigen::ComputeFullV);
   Eigen::Matrix3d U = svd.matrixU();
@@ -64,45 +20,6 @@ Eigen::Matrix3d project(const Eigen::Matrix3d mat) {
   }
 
   return rot;
-}
-
-std::vector<Eigen::MatrixXd> compute_residual_terms(PointCloud pcd1, PointCloud pcd2, double noise_bound_2) {
-  std::vector<Eigen::MatrixXd> terms;
-  terms.reserve(pcd1.rows());
-
-  Eigen::Matrix3d id3 = Eigen::Matrix3d::Identity(3, 3);
-  Eigen::MatrixXd mat_n;
-  Eigen::MatrixXd mat_m;
-
-  for (int i = 0; i < pcd1.rows(); i++) {
-    mat_n = Eigen::Matrix<double, 3, 13>::Zero(3, 13);
-    mat_n.block<3, 9>(0, 0) = kroneckerProduct(pcd1.row(i), id3);
-    mat_n.block<3, 3>(0, 9) = id3;
-    mat_n.block<3, 1>(0, 12) = -pcd2.row(i);
-
-    mat_m = (mat_n.transpose() * mat_n) / (noise_bound_2);
-    terms.push_back(mat_m);
-  }
-  return terms;
-}
-
-std::vector<Fractional> compute_fractional_terms(PointCloud pcd1, PointCloud pcd2, double noise_bound_2, double c2) {
-  std::vector<Fractional> terms;
-  terms.reserve(pcd1.rows());
-  Eigen::Matrix3d id3 = Eigen::Matrix3d::Identity(3, 3);
-  Eigen::MatrixXd mat_n;
-  Eigen::MatrixXd mat_m;
-
-  for (int i = 0; i < pcd1.rows(); i++) {
-    mat_n = Eigen::Matrix<double, 3, 13>::Zero(3, 13);
-    mat_n.block<3, 9>(0, 0) = kroneckerProduct(pcd1.row(i), id3);
-    mat_n.block<3, 3>(0, 9) = id3;
-    mat_n.block<3, 1>(0, 12) = -pcd2.row(i);
-
-    mat_m = (mat_n.transpose() * mat_n) / (noise_bound_2);
-    terms.push_back(Fractional(R2Sym(mat_m), c2));
-  }
-  return terms;
 }
 
 Eigen::VectorXd se3_mat_to_vec(Eigen::Matrix4d mat) {

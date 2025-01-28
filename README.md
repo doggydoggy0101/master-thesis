@@ -17,7 +17,6 @@ Official implementation of my master thesis "Algorithms for Geman-McClure Robust
     - [(optional) Build with Python binding](#optional-build-with-python-binding)
   - [:books: Example Usages](#books-example-usages)
   - [:card\_file\_box: Related works](#card_file_box-related-works)
-  - [:gift: Acknowledgement](#gift-acknowledgement)
 
 ## :gear: Setup
 
@@ -66,12 +65,15 @@ cd python && pip install .
 
 ## :books: Example Usages
 
-We provide two robust point cloud registration solvers.
+We provide the following robust point cloud registration solvers:
 
-| Solver | Description                                                         |
-| ------ | ------------------------------------------------------------------- |
-| FracGM | FracGM-based registration solver with linear relaxation approach. |
-| QGM    | QGM-based registration solver with linear relaxation approach.    |
+| Solver       | Robust   | Description                                                       |
+|--------------|----------|-------------------------------------------------------------------|
+| IrlsSolver   | TLS & GM | IRLS-based registration solver with linear relaxation approach.   |
+| GncSolver    | TLS & GM | GNC-based registration solver with linear relaxation approach.    |
+| FracgmSolver | GM       | FracGM-based registration solver with linear relaxation approach. |
+
+Note that QGM is IrlsSolver with the Geman-McClure robust function.
 
 - [:croissant: C++](examples/cpp)
 - [:snake: Python](examples/python)
@@ -82,9 +84,3 @@ Implementation of other solvers used in the synthetic dataset experiments can be
 ## :card_file_box: Related works
 
 - [Bang-Shien Chen](https://dgbshien.com/), [Yu-Kai Lin](https://github.com/StephLin), [Jian-Yu Chen](https://github.com/Jian-yu-chen), [Chih-Wei Huang](https://sites.google.com/ce.ncu.edu.tw/cwhuang/), [Jann-Long Chern](https://math.ntnu.edu.tw/~chern/), [Ching-Cherng Sun](https://www.dop.ncu.edu.tw/en/Faculty/faculty_more/9), **FracGM: A Fast Fractional Programming Technique for Geman-McClure Robust Estimator**. _IEEE Robotics and Automation Letters (RA-L)_, vol. 9, no. 12, pp. 11666-11673, Dec. 2024. ([paper](https://doi.org/10.1109/lra.2024.3495372)) ([preprint](https://arxiv.org/pdf/2409.13978)) ([code](https://github.com/StephLin/FracGM))
-
-
-## :gift: Acknowledgement
-
-- The feature of maximum clique inlier selection (MCIS) refers to [TEASER++](https://github.com/MIT-SPARK/TEASER-plusplus), which is under the MIT license.
-- The dataset is from [3DMatch](https://3dmatch.cs.princeton.edu/).

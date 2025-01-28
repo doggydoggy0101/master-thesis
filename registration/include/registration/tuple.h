@@ -28,8 +28,8 @@ namespace outlier_rejection {
  *
  * @return Indices of inlier correspondences.
  */
-std::vector<int> tuple_test(const PointCloud& src_point_cloud, const PointCloud& tar_point_cloud, double& tuple_scale,
-                            int& max_tuple_count);
+std::vector<int> tuple_test(const PointCloud& src_point_cloud, const PointCloud& tar_point_cloud,
+                            const double tuple_scale = 0.95, const int max_tuple_count = 1000);
 
 }  // namespace outlier_rejection
 

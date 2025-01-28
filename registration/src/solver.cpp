@@ -7,109 +7,17 @@
 
 namespace registration {
 
-FracGM::FracGM(const size_t& max_iteration, const double& tolerance, const double& threshold_c) {
+// Iterative Re-weighted Least Squares
+IrlsSolver::IrlsSolver(const size_t& max_iteration, const double& tolerance, const std::string& robust_type,
+                       const double& threshold_c) {
   this->max_iter = max_iteration;
   this->tol = tolerance;
+  this->robust = robust_type;
   this->c = threshold_c;
 }
 
-std::vector<double> FracGM::updateAuxiliaryVariables(std::vector<Fractional>* terms) {
-  std::vector<double> vec_1;  // beta
-  std::vector<double> vec_2;  // mu
-
-  for (auto& term : *terms) {
-    vec_1.push_back(term.f() / term.h());
-    vec_2.push_back(1 / term.h());
-  }
-
-  vec_1.insert(vec_1.end(), vec_2.begin(), vec_2.end());
-  return vec_1;
-}
-
-Eigen::MatrixXd FracGM::updateWeight(std::vector<double>* alpha, std::vector<Fractional>* terms) {
-  mat_w = Eigen::MatrixXd::Zero(13, 13);
-  int n = terms->size();
-
-  for (int i = 0; i < n; i++) {
-    mat_w += alpha->at(n + i) * terms->at(i).f_mat() - alpha->at(n + i) * alpha->at(i) * terms->at(i).h_mat();
-  }
-  return mat_w;
-}
-
-Eigen::VectorXd FracGM::updateVariable(Eigen::MatrixXd& mat_w) {
-  temp = mat_w.ldlt().solve(e);
-  return (1 / (e.transpose() * temp)) * temp;
-}
-
-float FracGM::compute_psi_norm(std::vector<double>* alpha, std::vector<Fractional>* terms) {
-  float a;
-  float b;
-  int n = terms->size();
-
-  float loss = 0.0;
-  for (int i = 0; i < n; i++) {
-    a = -terms->at(i).f() + alpha->at(i) * terms->at(i).h();
-    b = -1.0 + alpha->at(n + i) * terms->at(i).h();
-    loss += a * a + b * b;
-  }
-  return sqrt(loss);
-}
-
-void FracGM::update_terms_cache(std::vector<Fractional>* terms, Eigen::VectorXd* vec) {
-  for (auto& term : *terms) {
-    term.update_cache(*vec);
-  }
-}
-
-Eigen::Matrix4d FracGM::solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) {
-  std::vector<Fractional> terms = compute_fractional_terms(pcd1, pcd2, noise_bound * noise_bound, this->c * this->c);
-
-  Eigen::Matrix4d init_mat = Eigen::umeyama(pcd1.transpose(), pcd2.transpose(), false);
-  x = se3_mat_to_vec(init_mat);
-
-  for (int i = 0; i < this->max_iter; i++) {
-    // alternating solve alpha
-    alpha = updateAuxiliaryVariables(&terms);
-    mat_w = updateWeight(&alpha, &terms);
-
-    // alternating solve x
-    x = updateVariable(mat_w);
-    update_terms_cache(&terms, &x);
-
-    // stopping criteria
-    psi_norm = compute_psi_norm(&alpha, &terms);
-    if (psi_norm < this->tol) {
-      break;
-    }
-  }
-
-  se3 = se3_vec_to_mat(x);
-  se3.block<3, 3>(0, 0) = project(se3.block<3, 3>(0, 0));
-  return se3;
-}
-
-QGM::QGM(const size_t& max_iteration, const double& tolerance, const double& threshold_c) {
-  this->max_iter = max_iteration;
-  this->tol = tolerance;
-  this->c = threshold_c;
-}
-
-Eigen::MatrixXd QGM::updateWeight(std::vector<Eigen::MatrixXd>& terms, Eigen::VectorXd& x) {
-  mat_w = Eigen::MatrixXd::Zero(13, 13);
-  for (auto& mat_i : terms) {
-    mat_w +=
-        mat_i / ((x.transpose() * mat_i * x + this->c * this->c) * (x.transpose() * mat_i * x + this->c * this->c));
-  }
-  return mat_w;
-}
-
-Eigen::VectorXd QGM::updateVariable(Eigen::MatrixXd& mat_w) {
-  temp = mat_w.ldlt().solve(e);
-  return (1 / (e.transpose() * temp)) * temp;
-}
-
-Eigen::Matrix4d QGM::solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) {
-  std::vector<Eigen::MatrixXd> terms = compute_residual_terms(pcd1, pcd2, noise_bound * noise_bound);
+Eigen::Matrix4d IrlsSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) {
+  std::vector<Eigen::MatrixXd> terms = irls::compute_terms(pcd1, pcd2, noise_bound * noise_bound);
 
   Eigen::Matrix4d init_mat = Eigen::umeyama(pcd1.transpose(), pcd2.transpose(), false);
   x = se3_mat_to_vec(init_mat);
@@ -120,20 +28,114 @@ Eigen::Matrix4d QGM::solve(const PointCloud& pcd1, const PointCloud& pcd2, const
   }
 
   double prev_cost = x.transpose() * mat_w * x;
-  double cost = 0.0;
+  double curr_cost = 0.0;
 
   for (int i = 0; i < this->max_iter; i++) {
     // weight update
-    mat_w = updateWeight(terms, x);
-    // variable update
-    x = updateVariable(mat_w);
-
-    // stopping criteria
-    cost = x.transpose() * mat_w * x;
-    if (std::fabs(cost - prev_cost) / std::max(prev_cost, 1e-7) < this->tol) {
+    auto [mat_w, vec_w] = irls::updateWeight(terms, x, this->robust, this->c);
+    // NOTE: TLS extreme outlier cases when all the data are outliers.
+    if (vec_w.sum() == 0) {
       break;
     }
-    prev_cost = cost;
+    // variable update
+    x = solveQuadraticProgram(mat_w);
+    // stopping criteria
+    curr_cost = x.transpose() * mat_w * x;
+    if (checkCostConvergence(prev_cost, curr_cost)) {
+      break;
+    }
+    prev_cost = curr_cost;
+  }
+
+  se3 = se3_vec_to_mat(x);
+  se3.block<3, 3>(0, 0) = project(se3.block<3, 3>(0, 0));
+  return se3;
+}
+
+// Graduated Non-Convexity
+GncSolver::GncSolver(const size_t& max_iteration, const double& tolerance, const std::string& robust_type,
+                     const double& threshold_c, const double& gnc_factor, const double& weight_tolerance) {
+  this->max_iter = max_iteration;
+  this->tol = tolerance;
+  this->robust = robust_type;
+  this->c = threshold_c;
+  this->gnc_factor_ = gnc_factor;
+  this->weight_tol = weight_tolerance;
+}
+
+Eigen::Matrix4d GncSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) {
+  std::vector<Eigen::MatrixXd> terms = gnc::compute_terms(pcd1, pcd2, noise_bound * noise_bound);
+
+  Eigen::Matrix4d init_mat = Eigen::umeyama(pcd1.transpose(), pcd2.transpose(), false);
+  x = se3_mat_to_vec(init_mat);
+
+  double max_res2 = 0.0;
+  mat_w = Eigen::MatrixXd::Zero(13, 13);
+  for (auto& mat_i : terms) {
+    mat_w += mat_i;
+    double res2 = x.transpose() * mat_i * x;
+    if (res2 > max_res2) {
+      max_res2 = res2;
+    }
+  }
+
+  double prev_cost = x.transpose() * mat_w * x;
+  double curr_cost = 0.0;
+  mu = gnc::compute_initial_mu(max_res2, this->robust, this->c);
+
+  for (int i = 0; i < this->max_iter; i++) {
+    // weight update
+    auto [mat_w, vec_w] = gnc::updateWeight(terms, x, this->robust, this->c, mu);
+    // NOTE: TLS extreme outlier cases when all the data are outliers.
+    if (vec_w.sum() == 0) {
+      break;
+    }
+    // variable update
+    x = solveQuadraticProgram(mat_w);
+    // stopping criteria
+    curr_cost = x.transpose() * mat_w * x;
+    if (checkCostConvergence(prev_cost, curr_cost) || gnc::check_mu_convergence(mu, this->robust) ||
+        gnc::check_weight_convergence(vec_w, this->robust, this->weight_tol)) {
+      break;
+    }
+    prev_cost = curr_cost;
+
+    gnc::update_mu(mu, this->robust, this->gnc_factor_);
+  }
+
+  se3 = se3_vec_to_mat(x);
+  se3.block<3, 3>(0, 0) = project(se3.block<3, 3>(0, 0));
+  return se3;
+}
+
+// Fractional program for Geman-McClure
+FracgmSolver::FracgmSolver(const size_t& max_iteration, const double& tolerance, const double& threshold_c) {
+  this->max_iter = max_iteration;
+  this->tol = tolerance;
+  this->c = threshold_c;
+}
+
+Eigen::Matrix4d FracgmSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) {
+  std::vector<fracgm::Fractional> terms =
+      fracgm::compute_terms(pcd1, pcd2, noise_bound * noise_bound, this->c * this->c);
+
+  Eigen::Matrix4d init_mat = Eigen::umeyama(pcd1.transpose(), pcd2.transpose(), false);
+  x = se3_mat_to_vec(init_mat);
+
+  for (int i = 0; i < this->max_iter; i++) {
+    // alternating solve alpha
+    alpha = fracgm::updateAuxiliaryVariables(terms);
+    mat_w = fracgm::updateWeight(alpha, terms);
+
+    // alternating solve x
+    x = solveQuadraticProgram(mat_w);
+    fracgm::update_terms_cache(terms, x);
+
+    // stopping criteria
+    psi_norm = fracgm::compute_psi_norm(alpha, terms);
+    if (psi_norm < this->tol) {
+      break;
+    }
   }
 
   se3 = se3_vec_to_mat(x);

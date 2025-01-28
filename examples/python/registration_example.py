@@ -24,18 +24,22 @@ def get_toy_data():
     return src, dst, gt
 
 
-def perform_mcis(src, dst, noise_bound, pmc_timeout, pmc_n_threads):
+def perform_mcis(pcd1, pcd2, noise_bound, pmc_timeout, pmc_n_threads):
     indices = registration_python.outlier_rejection.maximum_clique_inlier_selection(
-        src, dst, noise_bound, pmc_timeout, pmc_n_threads
+        pcd1,
+        pcd2,
+        noise_bound=noise_bound,
+        pmc_timeout=pmc_timeout,
+        pmc_n_threads=pmc_n_threads,
     )
-    return np.take(src, indices, axis=0), np.take(dst, indices, axis=0)
+    return np.take(pcd1, indices, axis=0), np.take(pcd2, indices, axis=0)
 
 
-def perform_tuple(src, dst, tuple_scale, max_tuple_count):
+def perform_tuple(pcd1, pcd2, tuple_scale, max_tuple_count):
     indices = registration_python.outlier_rejection.tuple_test(
-        src, dst, tuple_scale, max_tuple_count
+        pcd1, pcd2, tuple_scale=tuple_scale, max_tuple_count=max_tuple_count
     )
-    return np.take(src, indices, axis=0), np.take(dst, indices, axis=0)
+    return np.take(pcd1, indices, axis=0), np.take(pcd2, indices, axis=0)
 
 
 def main():
@@ -57,26 +61,53 @@ def main():
 
     if method == "mcis":
         src_reg, dst_reg = perform_mcis(
-            src_reg, dst_reg, noise_bound, pmc_timeout, pmc_n_threads
+            pcd1=src_reg,
+            pcd2=dst_reg,
+            noise_bound=noise_bound,
+            pmc_timeout=pmc_timeout,
+            pmc_n_threads=pmc_n_threads,
         )
     elif method == "tuple":
-        src_reg, dst_reg = perform_tuple(src_reg, dst_reg, tuple_scale, max_tuple_count)
+        src_reg, dst_reg = perform_tuple(
+            pcd1=src_reg,
+            pcd2=dst_reg,
+            tuple_scale=tuple_scale,
+            max_tuple_count=max_tuple_count,
+        )
 
-    fracgm_reg = registration_python.FracGM(max_iteration, tol, c).solve(
-        src_reg, dst_reg, noise_bound
-    )
-    qgm_reg = registration_python.QGM(max_iteration, tol, c).solve(
-        src_reg, dst_reg, noise_bound
-    )
+    irls_tls_reg = registration_python.IrlsSolver(
+        max_iteration=max_iteration, tolerance=tol, robust_type="TLS", threshold_c=c
+    ).solve(pcd1=src_reg, pcd2=dst_reg, noise_bound=noise_bound)
+    irls_gm_reg = registration_python.IrlsSolver(
+        max_iteration=max_iteration, tolerance=tol, robust_type="GM", threshold_c=c
+    ).solve(pcd1=src_reg, pcd2=dst_reg, noise_bound=noise_bound)
+    gnc_tls_reg = registration_python.GncSolver(
+        max_iteration=max_iteration, tolerance=tol, robust_type="TLS", threshold_c=c
+    ).solve(pcd1=src_reg, pcd2=dst_reg, noise_bound=noise_bound)
+    gnc_gm_reg = registration_python.GncSolver(
+        max_iteration=max_iteration, tolerance=tol, robust_type="GM", threshold_c=c
+    ).solve(pcd1=src_reg, pcd2=dst_reg, noise_bound=noise_bound)
+    fracgm_reg = registration_python.FracgmSolver(
+        max_iteration=max_iteration, tolerance=tol, threshold_c=c
+    ).solve(pcd1=src_reg, pcd2=dst_reg, noise_bound=noise_bound)
 
     print("Ground truth:")
     print(gt_reg, end="\n\n")
 
+    print("IRLS-TLS:")
+    print(irls_tls_reg, end="\n\n")
+
+    print("IRLS-GM:")
+    print(irls_gm_reg, end="\n\n")
+
+    print("GNC-TLS:")
+    print(gnc_tls_reg, end="\n\n")
+
+    print("GNC-GM:")
+    print(gnc_gm_reg, end="\n\n")
+
     print("FracGM:")
     print(fracgm_reg, end="\n\n")
-
-    print("QGM:")
-    print(qgm_reg, end="\n\n")
 
 
 if __name__ == "__main__":

@@ -1,12 +1,14 @@
 project(registration_src)
 include(GNUInstallDirs)
 
-add_library(registration SHARED src/solver.cpp src/utils.cpp src/mcis.cpp src/tuple.cpp)
+file(GLOB SRC_FILES src/*.cpp)
+add_library(registration SHARED ${SRC_FILES})
+
 target_include_directories(registration PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMALE_INSTALL_INCLUDEDIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include> 
+    $<INSTALL_INTERFACE:${CMALE_INSTALL_INCLUDEDIR}> 
 )
+
 target_link_libraries(registration Eigen3::Eigen pmc)
 add_library(Registration::registration ALIAS registration)
 

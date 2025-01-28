@@ -7,6 +7,8 @@
 
 #include <Eigen/Dense>
 #include <vector>
+#include <utility>
+#include <string>
 
 #include "registration/irls.h"
 #include "registration/fracgm.h"
@@ -74,12 +76,14 @@ class AbstractSolver {
 
 class IrlsSolver : public AbstractSolver {
  protected:
-  double c;         // Threshold c in the Geman-McClure function.
+  std::string robust; // Robust function.
+  double c;           // Threshold c.
 
  private:
-  Eigen::MatrixXd mat_w;           // weighted quadratic term
-  Eigen::VectorXd x;               // solution vector
-  Eigen::Matrix4d se3;             // solution matrix
+  Eigen::MatrixXd mat_w; // weighted quadratic term
+  Eigen::VectorXd vec_w; // weight vector
+  Eigen::VectorXd x;     // solution vector
+  Eigen::Matrix4d se3;   // solution matrix
 
  public:
   /**
@@ -87,9 +91,10 @@ class IrlsSolver : public AbstractSolver {
    *
    * @param max_iteration The maximum number of iterations allowed.
    * @param tolerance The tolerance for convergence.
-   * @param threshold_c The parameter $c$ of the Geman-McClure function.
+   * @param robust_type Robust function: Truncated Least Squares (TLS) or Geman-McClure (GM).
+   * @param threshold_c The parameter $c$ of the robust function.
    */
-  IrlsSolver(const size_t& max_iteration = 1000, const double& tolerance = 1e-6, const double& threshold_c = 0.1);
+  IrlsSolver(const size_t& max_iteration = 1000, const double& tolerance = 1e-6, const std::string& robust_type = "GM", const double& threshold_c = 0.1);
 
   /**
    * @brief Weight update in the QGM algorithm.
@@ -98,8 +103,9 @@ class IrlsSolver : public AbstractSolver {
    * @param x The variable.
    *
    * @return The weighted quadratic term for the quadratic program.
+   * @return The weight vector.
    */
-  Eigen::MatrixXd updateWeight(std::vector<Eigen::MatrixXd>& terms, Eigen::VectorXd& x);
+  std::pair<Eigen::MatrixXd, Eigen::VectorXd> updateWeight(std::vector<Eigen::MatrixXd>& terms, Eigen::VectorXd& x);
 
   /// @brief Solve the point cloud registration problem.
   Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) override;

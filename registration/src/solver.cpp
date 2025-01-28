@@ -8,19 +8,32 @@
 namespace registration {
 
 // Iterative Re-weighted Least Squares
-IrlsSolver::IrlsSolver(const size_t& max_iteration, const double& tolerance, const double& threshold_c) {
+IrlsSolver::IrlsSolver(const size_t& max_iteration, const double& tolerance, const std::string& robust_type, const double& threshold_c) {
   this->max_iter = max_iteration;
   this->tol = tolerance;
+  this->robust = robust_type;
   this->c = threshold_c;
 }
 
-Eigen::MatrixXd IrlsSolver::updateWeight(std::vector<Eigen::MatrixXd>& terms, Eigen::VectorXd& x) {
+std::pair<Eigen::MatrixXd, Eigen::VectorXd> IrlsSolver::updateWeight(std::vector<Eigen::MatrixXd>& terms, Eigen::VectorXd& x) {
   mat_w = Eigen::MatrixXd::Zero(13, 13);
-  for (auto& mat_i : terms) {
-    mat_w +=
-        mat_i / ((x.transpose() * mat_i * x + this->c * this->c) * (x.transpose() * mat_i * x + this->c * this->c));
+  vec_w = Eigen::VectorXd::Zero(terms.size());
+
+  if (this->robust == "TLS") {
+    for (size_t i = 0; i < terms.size(); i++) {
+      if (x.transpose() * terms[i] * x <= this->c * this->c) {
+        mat_w += terms[i];
+        vec_w[i] = 1.0;
+      }
+    }
+  } else if (this->robust == "GM") {
+    for (size_t i = 0; i < terms.size(); i++) {
+      double w_i = 1.0 / ((x.transpose() * terms[i] * x + this->c * this->c) * (x.transpose() * terms[i] * x + this->c * this->c));
+      mat_w += w_i * terms[i];
+      vec_w[i] = w_i;
+    }
   }
-  return mat_w;
+  return std::make_pair(mat_w, vec_w);
 }
 
 Eigen::Matrix4d IrlsSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) {
@@ -39,10 +52,13 @@ Eigen::Matrix4d IrlsSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2
 
   for (int i = 0; i < this->max_iter; i++) {
     // weight update
-    mat_w = updateWeight(terms, x);
+    auto [mat_w, vec_w] = updateWeight(terms, x);
+    // NOTE: TLS extreme outlier cases when all the data are outliers.
+    if (vec_w.sum() == 0) {
+      break;
+    }
     // variable update
     x = solveQuadraticProgram(mat_w);
-
     // stopping criteria
     curr_cost = x.transpose() * mat_w * x;
     if (checkCostConvergence(prev_cost, curr_cost)) {

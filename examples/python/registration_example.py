@@ -62,21 +62,27 @@ def main():
     elif method == "tuple":
         src_reg, dst_reg = perform_tuple(src_reg, dst_reg, tuple_scale, max_tuple_count)
 
-    fracgm_reg = registration_python.FracgmSolver(max_iteration, tol, c).solve(
+    irls_tls_reg = registration_python.IrlsSolver(max_iteration, tol, "TLS", c).solve(
         src_reg, dst_reg, noise_bound
     )
-    qgm_reg = registration_python.IrlsSolver(max_iteration, tol, c).solve(
+    irls_gm_reg = registration_python.IrlsSolver(max_iteration, tol, "GM", c).solve(
+        src_reg, dst_reg, noise_bound
+    )
+    fracgm_reg = registration_python.FracgmSolver(max_iteration, tol, c).solve(
         src_reg, dst_reg, noise_bound
     )
 
     print("Ground truth:")
     print(gt_reg, end="\n\n")
 
+    print("IRLS-TLS:")
+    print(irls_tls_reg, end="\n\n")
+
+    print("IRLS-GM:")
+    print(irls_gm_reg, end="\n\n")
+
     print("FracGM:")
     print(fracgm_reg, end="\n\n")
-
-    print("QGM:")
-    print(qgm_reg, end="\n\n")
 
 
 if __name__ == "__main__":

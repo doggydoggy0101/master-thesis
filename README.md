@@ -15,7 +15,7 @@ Official implementation of my master thesis "Algorithms for Geman-McClure Robust
     - [Prerequisites](#prerequisites)
     - [Build](#build)
     - [(optional) Build with Python binding](#optional-build-with-python-binding)
-  - [:books: Example Usages](#books-example-usages)
+  - [:books: Example usages](#books-example-usages)
   - [:card\_file\_box: Related works](#card_file_box-related-works)
 
 ## :gear: Setup
@@ -57,13 +57,13 @@ python3 -m pip install numpy
 
 mkdir build
 cd build
-cmake .. -DBUILD_PYTHON=ON -DPYTHON_EXECUTABLE=$(which python3)
+cmake .. -DBUILD_PYTHON=ON
 make
 
 cd python && pip install .
 ```
 
-## :books: Example Usages
+## :books: Example usages
 
 We provide the following robust point cloud registration solvers:
 

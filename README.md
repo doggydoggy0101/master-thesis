@@ -16,6 +16,7 @@ Official implementation of my master thesis "Algorithms for Geman-McClure Robust
     - [Build](#build)
     - [(optional) Build with Python binding](#optional-build-with-python-binding)
   - [:books: Example usages](#books-example-usages)
+  - [:video\_game: Numerical results](#video_game-numerical-results)
   - [:card\_file\_box: Related works](#card_file_box-related-works)
 
 ## :gear: Setup
@@ -73,12 +74,21 @@ We provide the following robust point cloud registration solvers:
 | GncSolver    | TLS & GM | GNC-based registration solver with linear relaxation approach.    |
 | FracgmSolver | GM       | FracGM-based registration solver with linear relaxation approach. |
 
-Note that QGM is IrlsSolver with the Geman-McClure robust function.
+> Note that QGM is IrlsSolver with the Geman-McClure robust function.
 
 - [:croissant: C++](examples/cpp)
 - [:snake: Python](examples/python)
 
-Implementation of other solvers used in the synthetic dataset experiments can be found [here](https://github.com/doggydoggy0101/registration).
+Implementation of other solvers used in the synthetic dataset experiments can be found [here](https://github.com/doggydoggy0101/registration). 
+
+
+## :video_game: Numerical results
+
+We benchmark the solvers against [RANSAC](https://github.com/isl-org/Open3D), [FGR](https://github.com/isl-org/FastGlobalRegistration), and [TEASER++](https://github.com/MIT-SPARK/TEASER-plusplus) on the [3DMatch](https://3dmatch.cs.princeton.edu/) dataset. All experiments are conducted over 40 Monte Carlo runs.
+
+![images](docs/3dmatch.png)
+
+> TEASER++ has two runtime patterns, some runs complete with (~0.0005s), while others take (~0.2-0.4s) for the same scene. Despite these runtime differences, the final rotation and translation errors remain consistent across runs, which suggests that TEASER++ is completing the registration successfully in all cases. I am still looking for the reason why this happens.
 
 
 ## :card_file_box: Related works

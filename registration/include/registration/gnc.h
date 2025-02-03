@@ -55,7 +55,7 @@ double compute_initial_mu(double& res_sq, std::string& robust, double& c);
 void update_mu(double& mu, std::string& robust, double& gnc_factor);
 
 /**
- * @brief Weight update in the QGM algorithm.
+ * @brief Weight update in the GNC algorithm.
  *
  * @param terms A vector of the quadratic terms of square of residuals.
  * @param x The variable.

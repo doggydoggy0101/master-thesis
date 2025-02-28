@@ -1,4 +1,7 @@
-# Byte-compiled / optimized / DLL files
+# third-party
+third-party/
+
+# Python
 __pycache__/
 
 # C++

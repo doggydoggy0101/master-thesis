@@ -13,8 +13,6 @@
 
 namespace registration {
 
-using PointCloud = Eigen::Matrix<double, Eigen::Dynamic, 3>;
-
 namespace fracgm {
 
 // A structure that can be used to compute the quadratic form associated

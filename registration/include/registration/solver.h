@@ -11,14 +11,13 @@
 #include <string>
 #include <vector>
 
+#include "registration/constant.h"
 #include "registration/fracgm.h"
 #include "registration/gnc.h"
 #include "registration/irls.h"
 #include "registration/utils.h"
 
 namespace registration {
-
-using PointCloud = Eigen::Matrix<double, Eigen::Dynamic, 3>;
 
 class AbstractSolver {
  protected:
@@ -64,12 +63,12 @@ class AbstractSolver {
   Eigen::VectorXd solveQuadraticProgram(Eigen::MatrixXd& mat) {
     if (mat.fullPivLu().rank() == mat.rows()) {
       // solve by closed-form
-      temp = mat.ldlt().solve(e);
+      temp = mat.ldlt().solve(e13);
     } else {
       // solve by pseudo-inverse
-      temp = mat.completeOrthogonalDecomposition().solve(e);
+      temp = mat.completeOrthogonalDecomposition().solve(e13);
     }
-    return (1 / (e.transpose() * temp)) * temp;
+    return (1 / (e13.transpose() * temp)) * temp;
   }
 
   /// @brief Check convergence of relative cost difference.

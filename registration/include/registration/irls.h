@@ -14,8 +14,6 @@
 
 namespace registration {
 
-using PointCloud = Eigen::Matrix<double, Eigen::Dynamic, 3>;
-
 namespace irls {
 
 /**

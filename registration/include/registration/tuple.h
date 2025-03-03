@@ -14,9 +14,9 @@
 #include <random>
 #include <vector>
 
-namespace registration {
+#include "registration/constant.h"
 
-using PointCloud = Eigen::Matrix<double, Eigen::Dynamic, 3>;
+namespace registration {
 
 namespace outlier_rejection {
 

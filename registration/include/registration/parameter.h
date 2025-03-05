@@ -19,13 +19,13 @@ namespace registration {
  * @param superlinear Use superlienar update surrogate parameter for TLS (does nothing for other robust function).
  */
 struct Params {
-  size_t max_iteration = 100; 
-  double tolerance = 1e-6; 
+  size_t max_iteration = 100;
+  double tolerance = 1e-6;
   std::string robust_type = "GM";
-  double threshold_c = 1.0; 
-  double gnc_factor = 1.4; 
+  double threshold_c = 1.0;
+  double gnc_factor = 1.4;
   double weight_tolerance = 1e-4;
-  bool majorization = false; 
+  bool majorization = false;
   bool superlinear = false;
 };
 

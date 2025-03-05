@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "registration/mcis.h"  // maximum clique inlier selection
+#include "registration/parameter.h"
 #include "registration/solver.h"
 #include "registration/tuple.h"  // tuple test
 
@@ -103,11 +104,8 @@ std::tuple<PointCloud, PointCloud> perform_tuple(const PointCloud &pc1, const Po
 }
 
 int main() {
-  size_t max_iteration = 100;
-  double tol = 1e-6;
-  double c = 1.0;
+  // data assumption
   double noise_bound = 0.1;
-
   // outlier rejection method
   std::string method = "mcis";  // "mcis" or "tuple"
   // mcis
@@ -118,6 +116,7 @@ int main() {
   int max_tuple_count = 1000;
 
   auto [src_reg, dst_reg, gt_reg] = get_toy_data();
+  std::cout << "Ground Truth:" << "\n" << gt_reg << "\n\n";
 
   PointCloud inlier_src_reg, inlier_dst_reg;
 
@@ -130,22 +129,61 @@ int main() {
     inlier_dst_reg = dst_reg;
   }
 
-  auto irls_tls_reg =
-      registration::IrlsSolver(max_iteration, tol, "TLS", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-  auto irls_gm_reg =
-      registration::IrlsSolver(max_iteration, tol, "GM", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-  auto gnc_tls_reg =
-      registration::GncSolver(max_iteration, tol, "TLS", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-  auto gnc_gm_reg =
-      registration::GncSolver(max_iteration, tol, "GM", c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-  auto fracgm_reg =
-      registration::FracgmSolver(max_iteration, tol, c).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
-
-  std::cout << "Ground Truth:" << "\n" << gt_reg << "\n\n";
+  registration::Params irls_tls_params;
+  irls_tls_params.max_iteration = 100;
+  irls_tls_params.tolerance = 1e-6;
+  irls_tls_params.robust_type = "TLS";
+  irls_tls_params.threshold_c = 1.0;
+  auto irls_tls_reg = registration::IrlsSolver(irls_tls_params).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
   std::cout << "IRLS-TLS:" << "\n" << irls_tls_reg << "\n\n";
+
+  registration::Params irls_gm_params;
+  irls_gm_params.max_iteration = 100;
+  irls_gm_params.tolerance = 1e-6;
+  irls_gm_params.robust_type = "GM";
+  irls_gm_params.threshold_c = 1.0;
+  auto irls_gm_reg = registration::IrlsSolver(irls_gm_params).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
   std::cout << "IRLS-GM:" << "\n" << irls_gm_reg << "\n\n";
+
+  registration::Params gnc_tls_params;
+  gnc_tls_params.max_iteration = 100;
+  gnc_tls_params.tolerance = 1e-6;
+  gnc_tls_params.robust_type = "TLS";
+  gnc_tls_params.threshold_c = 1.0;
+  auto gnc_tls_reg = registration::GncSolver(gnc_tls_params).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
   std::cout << "GNC-TLS:" << "\n" << gnc_tls_reg << "\n\n";
+
+  registration::Params gnc_gm_params;
+  gnc_gm_params.max_iteration = 100;
+  gnc_gm_params.tolerance = 1e-6;
+  gnc_gm_params.robust_type = "GM";
+  gnc_gm_params.threshold_c = 1.0;
+  auto gnc_gm_reg = registration::GncSolver(gnc_gm_params).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
   std::cout << "GNC-GM:" << "\n" << gnc_gm_reg << "\n\n";
+
+  registration::Params ms_gnc_l0_params;
+  ms_gnc_l0_params.max_iteration = 100;
+  ms_gnc_l0_params.tolerance = 1e-6;
+  ms_gnc_l0_params.robust_type = "L0";
+  ms_gnc_l0_params.threshold_c = 1.0;
+  auto ms_gnc_l0_reg = registration::GncSolver(ms_gnc_l0_params).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  std::cout << "MS-GNC-L0:" << "\n" << ms_gnc_l0_reg << "\n\n";
+
+  registration::Params ms_gnc_tls_params;
+  ms_gnc_tls_params.max_iteration = 100;
+  ms_gnc_tls_params.tolerance = 1e-6;
+  ms_gnc_tls_params.robust_type = "TLS";
+  ms_gnc_tls_params.threshold_c = 1.0;
+  ms_gnc_tls_params.majorization = true;
+  ms_gnc_tls_params.superlinear = true;
+  auto ms_gnc_tls_reg = registration::GncSolver(ms_gnc_tls_params).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
+  std::cout << "MS-GNC-TLS:" << "\n" << ms_gnc_tls_reg << "\n\n";
+
+  registration::Params fracgm_params;
+  fracgm_params.max_iteration = 100;
+  fracgm_params.tolerance = 1e-6;
+  fracgm_params.threshold_c = 1.0;
+  auto fracgm_reg = registration::FracgmSolver(fracgm_params).solve(inlier_src_reg, inlier_dst_reg, noise_bound);
   std::cout << "FracGM:" << "\n" << fracgm_reg << "\n\n";
 
   return 0;

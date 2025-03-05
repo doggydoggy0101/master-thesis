@@ -90,7 +90,7 @@ class IrlsSolver : public AbstractSolver {
    *
    * @param max_iteration The maximum number of iterations allowed.
    * @param tolerance The tolerance for convergence.
-   * @param robust_type Robust function: Truncated Least Squares (TLS) or Geman-McClure (GM).
+   * @param robust_type Robust function: Truncated Least Squares (TLS), Geman-McClure (GM).
    * @param threshold_c The parameter $c$ of the robust function.
    */
   IrlsSolver(const size_t& max_iteration = 1000, const double& tolerance = 1e-6, const std::string& robust_type = "GM",
@@ -104,6 +104,8 @@ class GncSolver : public AbstractSolver {
  protected:
   double gnc_factor_;  // surrogate parameter's update step size
   double weight_tol;   // stopping critera for TLS weight
+  bool major;          // majorization surrogate
+  bool superlinear_;   // superlinear surrogate parameter
 
  private:
   Eigen::MatrixXd mat_w;  // weighted quadratic term
@@ -118,13 +120,16 @@ class GncSolver : public AbstractSolver {
    *
    * @param max_iteration The maximum number of iterations allowed.
    * @param tolerance The tolerance for convergence.
-   * @param robust_type Robust function: Truncated Least Squares (TLS) or Geman-McClure (GM).
+   * @param robust_type Robust function: Truncated Least Squares (TLS), Geman-McClure (GM) or L0-norm (L0).
    * @param threshold_c The parameter $c$ of the robust function.
    * @param gnc_factor Surrogate parameter's update step size.
    * @param weight_tolerance Stopping critera for weights being binary.
+   * @param majorization Use majorization surrogate for TLS (does nothing for other robust function).
+   * @param superlinear Use superlienar update surrogate parameter for TLS (does nothing for other robust function).
    */
   GncSolver(const size_t& max_iteration = 1000, const double& tolerance = 1e-6, const std::string& robust_type = "GM",
-            const double& threshold_c = 1.0, const double& gnc_factor = 1.4, const double& weight_tolerance = 1e-4);
+            const double& threshold_c = 1.0, const double& gnc_factor = 1.4, const double& weight_tolerance = 1e-4,
+            const bool& majorization = false, const bool& superlinear = false);
 
   /// @brief Solve the point cloud registration problem.
   Eigen::Matrix4d solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound = 0.1) override;

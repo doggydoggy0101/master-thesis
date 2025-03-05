@@ -49,8 +49,10 @@ double compute_initial_mu(double& res_sq, std::string& robust, double& c);
  * @param mu Sorrogate paramerer.
  * @param robust Robust function type.
  * @param gnc_factor Update step size.
+ * @param threshold_c Inlier threshold.
+ * @param superlinear Use superlinear update surrogtate parameter.
  */
-void update_mu(double& mu, std::string& robust, double& gnc_factor);
+void update_mu(double& mu, std::string& robust, double& gnc_factor, double& threshold_c, bool& superlinear);
 
 /**
  * @brief Weight update in the GNC algorithm.
@@ -60,12 +62,14 @@ void update_mu(double& mu, std::string& robust, double& gnc_factor);
  * @param robust Robust function type.
  * @param c Parameter in robust function.
  * @param mu Sorrogate parameter.
+ * @param majorization Use majorization surrogate.
  *
  * @return The weighted quadratic term for the quadratic program.
  * @return The weight vector.
  */
 std::pair<Eigen::MatrixXd, Eigen::VectorXd> updateWeight(std::vector<Eigen::MatrixXd>& terms, Eigen::VectorXd& x,
-                                                         std::string& robust, double& c, double& mu);
+                                                         std::string& robust, double& c, double& mu,
+                                                         bool& majorization);
 
 /// @brief Check if surrogate function approximates the original robust function (for GM).
 bool check_mu_convergence(double& mu, std::string& robust);

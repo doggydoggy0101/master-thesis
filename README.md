@@ -60,11 +60,11 @@ cd python && pip install .
 
 We provide the following robust point cloud registration solvers:
 
-| Solver       | Robust   | Description                                                       |
-|--------------|----------|-------------------------------------------------------------------|
-| IrlsSolver   | TLS & GM | IRLS-based registration solver with linear relaxation approach.   |
-| GncSolver    | TLS & GM | GNC-based registration solver with linear relaxation approach.    |
-| FracgmSolver | GM       | FracGM-based registration solver with linear relaxation approach. |
+| Solver       | Robust      | Description                                                       |
+|--------------|-------------|-------------------------------------------------------------------|
+| IrlsSolver   | TLS, GM     | IRLS-based registration solver with linear relaxation approach.   |
+| GncSolver    | TLS, GM, L0 | GNC-based registration solver with linear relaxation approach.    |
+| FracgmSolver | GM          | FracGM-based registration solver with linear relaxation approach. |
 
 > Note that QGM is IrlsSolver with the Geman-McClure robust function.
 
@@ -76,13 +76,15 @@ Implementation of other solvers used in the synthetic dataset experiments can be
 
 ## :video_game: Numerical results
 
-We benchmark the solvers against [RANSAC](https://github.com/isl-org/Open3D), [FGR](https://github.com/isl-org/FastGlobalRegistration), and [TEASER++](https://github.com/MIT-SPARK/TEASER-plusplus) on the [3DMatch](https://3dmatch.cs.princeton.edu/) dataset. All experiments are conducted over 40 Monte Carlo runs.
+We benchmark the solvers against [RANSAC](https://github.com/isl-org/Open3D), [FGR](https://github.com/isl-org/FastGlobalRegistration), and [TEASER++](https://github.com/MIT-SPARK/TEASER-plusplus) on the [3DMatch](https://3dmatch.cs.princeton.edu/) dataset.
 
 ![images](docs/3dmatch.png)
-
-> TEASER++ has two runtime patterns, some runs complete with (~0.0005s), while others take (~0.2-0.4s) for the same scene. Despite these runtime differences, the final rotation and translation errors remain consistent across runs, which suggests that TEASER++ is completing the registration successfully in all cases. I am still looking for the reason why this happens.
 
 
 ## :card_file_box: Related works
 
-- [Bang-Shien Chen](https://dgbshien.com/), [Yu-Kai Lin](https://github.com/StephLin), [Jian-Yu Chen](https://github.com/Jian-yu-chen), [Chih-Wei Huang](https://sites.google.com/ce.ncu.edu.tw/cwhuang/), [Jann-Long Chern](https://math.ntnu.edu.tw/~chern/), [Ching-Cherng Sun](https://www.dop.ncu.edu.tw/en/Faculty/faculty_more/9), **FracGM: A Fast Fractional Programming Technique for Geman-McClure Robust Estimator**. _IEEE Robotics and Automation Letters (RA-L)_, vol. 9, no. 12, pp. 11666-11673, Dec. 2024. ([paper](https://doi.org/10.1109/lra.2024.3495372)) ([preprint](https://arxiv.org/pdf/2409.13978)) ([code](https://github.com/StephLin/FracGM))
+- Bang-Shien Chen, Yu-Kai Lin, Jian-Yu Chen, Chih-Wei Huang, Jann-Long Chern, Ching-Cherng Sun. **FracGM: A Fast Fractional Programming Technique for Geman-McClure Robust Estimator**. _IEEE Robotics and Automation Letters (RA-L)_, vol. 9, no. 12, pp. 11666-11673, 2024. ([paper](https://doi.org/10.1109/lra.2024.3495372)) ([preprint](https://arxiv.org/pdf/2409.13978)) ([code](https://github.com/StephLin/FracGM))
+
+- Liangzu Peng, Christian Kümmerle, René Vidal, **On the convergence of IRLS and its variants in outlier-robust estimation**. _In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition_, pp. 17808-17818, 2023. ([paper](https://doi.org/10.1109/CVPR52729.2023.01708)) ([preprint](https://openaccess.thecvf.com/content/CVPR2023/papers/Peng_On_the_Convergence_of_IRLS_and_Its_Variants_in_Outlier-Robust_CVPR_2023_paper.pdf)) ([code](https://github.com/liangzu/IRLS-CVPR2023))
+
+- Heng Yang, Pasquale Antonante, Vasileios Tzoumas, Luca Carlone. **Graduated Non-Convexity for Robust Spatial Perception: From Non-Minimal Solvers to Global Outlier Rejection**. _IEEE Robotics and Automation Letters_, vol. 5, no. 2, pp. 1127-1134, 2020. ([paper](https://doi.org/10.1109/LRA.2020.2965893))([preprint](https://arxiv.org/pdf/1909.08605))([code](https://github.com/MIT-SPARK/GNC-and-ADAPT))

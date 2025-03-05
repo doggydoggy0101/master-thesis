@@ -39,40 +39,70 @@ double compute_initial_mu(double& res_sq, std::string& robust, double& c) {
     }
   } else if (robust == "GM") {
     mu = (2 * res_sq) / (c * c);
+  } else if (robust == "L0") {
+    mu = 1;
   }
   return mu;
 }
 
-void update_mu(double& mu, std::string& robust, double& gnc_factor) {
+void update_mu(double& mu, std::string& robust, double& gnc_factor, double& threshold_c, bool& superlinear) {
   if (robust == "TLS") {
+    if (superlinear && mu < 1) {  // Peng's superlinear surrogate update
+      mu = std::sqrt(mu);
+    }
     mu *= gnc_factor;
   } else if (robust == "GM") {
     mu /= gnc_factor;
     mu = std::max(1.0, mu);  // Saturate at 1
+  } else if (robust == "L0") {
+    std::max(gnc_factor * mu * mu, threshold_c);  // we write epsilon as mu and beta as gnc_factor
   }
 }
 
 std::pair<Eigen::MatrixXd, Eigen::VectorXd> updateWeight(std::vector<Eigen::MatrixXd>& terms, Eigen::VectorXd& x,
-                                                         std::string& robust, double& c, double& mu) {
+                                                         std::string& robust, double& c, double& mu,
+                                                         bool& majorization) {
   Eigen::MatrixXd mat_w = Eigen::MatrixXd::Zero(13, 13);
   Eigen::VectorXd vec_w = Eigen::VectorXd::Zero(terms.size());
 
   if (robust == "TLS") {
-    for (size_t i = 0; i < terms.size(); i++) {
-      double res = x.transpose() * terms[i] * x;
-      if (res <= (mu / (mu + 1)) * c * c) {
-        mat_w += terms[i];
-        vec_w[i] = 1.0;
-      } else if (res <= ((mu + 1) / mu) * c * c) {
-        double w_i = c * std::sqrt(mu * (mu + 1) / res) - mu;
-        mat_w += w_i * terms[i];
-        vec_w[i] = w_i;
+    if (majorization) {  // Peng's majorization surrogate
+      for (size_t i = 0; i < terms.size(); i++) {
+        double res = x.transpose() * terms[i] * x;
+        if (res <= c * c) {
+          mat_w += terms[i];
+          vec_w[i] = 1.0;
+        } else if (res < ((mu + 1) / mu) * ((mu + 1) / mu) * c * c) {
+          // Both my derivation and their implementation indicate there should be a square root in Eq.(17).
+          double w_i = c * (mu + 1) / std::sqrt(res) - mu;
+          mat_w += w_i * terms[i];
+          vec_w[i] = w_i;
+        }
+      }
+    } else {  // Yang's surrogate in GNC
+      for (size_t i = 0; i < terms.size(); i++) {
+        double res = x.transpose() * terms[i] * x;
+        if (res <= (mu / (mu + 1)) * c * c) {
+          mat_w += terms[i];
+          vec_w[i] = 1.0;
+        } else if (res <= ((mu + 1) / mu) * c * c) {
+          double w_i = c * std::sqrt(mu * (mu + 1) / res) - mu;
+          mat_w += w_i * terms[i];
+          vec_w[i] = w_i;
+        }
       }
     }
   } else if (robust == "GM") {
     for (size_t i = 0; i < terms.size(); i++) {
       double res = x.transpose() * terms[i] * x;
       double w_i = std::pow((mu * c * c) / (res + mu * c * c), 2);
+      mat_w += w_i * terms[i];
+      vec_w[i] = w_i;
+    }
+  } else if (robust == "L0") {
+    for (size_t i = 0; i < terms.size(); i++) {
+      double res = x.transpose() * terms[i] * x;
+      double w_i = 1 / std::max(res, mu * mu);  // we write epsilon as mu
       mat_w += w_i * terms[i];
       vec_w[i] = w_i;
     }

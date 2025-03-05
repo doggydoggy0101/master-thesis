@@ -8,12 +8,11 @@
 namespace registration {
 
 // Iterative Re-weighted Least Squares
-IrlsSolver::IrlsSolver(const size_t& max_iteration, const double& tolerance, const std::string& robust_type,
-                       const double& threshold_c) {
-  this->max_iter = max_iteration;
-  this->tol = tolerance;
-  this->robust = robust_type;
-  this->c = threshold_c;
+IrlsSolver::IrlsSolver(Params params) {
+  this->max_iter = params.max_iteration;
+  this->tol = params.tolerance;
+  this->robust = params.robust_type;
+  this->c = params.threshold_c;
 }
 
 Eigen::Matrix4d IrlsSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) {
@@ -53,14 +52,15 @@ Eigen::Matrix4d IrlsSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2
 }
 
 // Graduated Non-Convexity
-GncSolver::GncSolver(const size_t& max_iteration, const double& tolerance, const std::string& robust_type,
-                     const double& threshold_c, const double& gnc_factor, const double& weight_tolerance) {
-  this->max_iter = max_iteration;
-  this->tol = tolerance;
-  this->robust = robust_type;
-  this->c = threshold_c;
-  this->gnc_factor_ = gnc_factor;
-  this->weight_tol = weight_tolerance;
+GncSolver::GncSolver(Params params) {
+  this->max_iter = params.max_iteration;
+  this->tol = params.tolerance;
+  this->robust = params.robust_type;
+  this->c = params.threshold_c;
+  this->gnc_factor = params.gnc_factor;
+  this->weight_tol = params.weight_tolerance;
+  this->major = params.majorization;
+  this->superlinear = params.superlinear;
 }
 
 Eigen::Matrix4d GncSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) {
@@ -85,7 +85,7 @@ Eigen::Matrix4d GncSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2,
 
   for (int i = 0; i < this->max_iter; i++) {
     // weight update
-    auto [mat_w, vec_w] = gnc::updateWeight(terms, x, this->robust, this->c, mu);
+    auto [mat_w, vec_w] = gnc::updateWeight(terms, x, this->robust, this->c, mu, this->major);
     // NOTE: TLS extreme outlier cases when all the data are outliers.
     if (vec_w.sum() == 0) {
       break;
@@ -100,7 +100,7 @@ Eigen::Matrix4d GncSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2,
     }
     prev_cost = curr_cost;
 
-    gnc::update_mu(mu, this->robust, this->gnc_factor_);
+    gnc::update_mu(mu, this->robust, this->gnc_factor, this->c, this->superlinear);
   }
 
   se3 = se3_vec_to_mat(x);
@@ -109,10 +109,10 @@ Eigen::Matrix4d GncSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2,
 }
 
 // Fractional program for Geman-McClure
-FracgmSolver::FracgmSolver(const size_t& max_iteration, const double& tolerance, const double& threshold_c) {
-  this->max_iter = max_iteration;
-  this->tol = tolerance;
-  this->c = threshold_c;
+FracgmSolver::FracgmSolver(Params params) {
+  this->max_iter = params.max_iteration;
+  this->tol = params.tolerance;
+  this->c = params.threshold_c;
 }
 
 Eigen::Matrix4d FracgmSolver::solve(const PointCloud& pcd1, const PointCloud& pcd2, const double& noise_bound) {

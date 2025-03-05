@@ -7,26 +7,34 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <registration/mcis.h>
+#include <registration/parameter.h>
 #include <registration/solver.h>
 #include <registration/tuple.h>
 
 namespace py = pybind11;
 
 PYBIND11_MODULE(registration_python, module) {
+  py::class_<registration::Params>(module, "Params")
+      .def(py::init<>())
+      .def_readwrite("max_iteration", &registration::Params::max_iteration)
+      .def_readwrite("tolerance", &registration::Params::tolerance)
+      .def_readwrite("robust_type", &registration::Params::robust_type)
+      .def_readwrite("threshold_c", &registration::Params::threshold_c)
+      .def_readwrite("gnc_factor", &registration::Params::gnc_factor)
+      .def_readwrite("weight_tolerance", &registration::Params::weight_tolerance)
+      .def_readwrite("majorization", &registration::Params::majorization)
+      .def_readwrite("superlinear", &registration::Params::superlinear);
+
   py::class_<registration::IrlsSolver>(module, "IrlsSolver")
-      .def(py::init<const size_t, const double, const std::string&, const double>(), py::arg("max_iteration") = 1000,
-           py::arg("tolerance") = 1e-6, py::arg("robust_type") = "GM", py::arg("threshold_c") = 1.0)
+      .def(py::init<registration::Params>(), py::arg("params"))
       .def("solve", &registration::IrlsSolver::solve, py::arg("pcd1"), py::arg("pcd2"), py::arg("noise_bound") = 0.1);
 
   py::class_<registration::GncSolver>(module, "GncSolver")
-      .def(py::init<const size_t, const double, const std::string&, const double, const double, const double>(),
-           py::arg("max_iteration") = 1000, py::arg("tolerance") = 1e-6, py::arg("robust_type") = "GM",
-           py::arg("threshold_c") = 1.0, py::arg("gnc_factor") = 1.4, py::arg("weight_tolerance") = 1e-4)
+      .def(py::init<registration::Params>(), py::arg("params"))
       .def("solve", &registration::GncSolver::solve, py::arg("pcd1"), py::arg("pcd2"), py::arg("noise_bound") = 0.1);
 
   py::class_<registration::FracgmSolver>(module, "FracgmSolver")
-      .def(py::init<const size_t, const double, const double>(), py::arg("max_iteration") = 1000,
-           py::arg("tolerance") = 1e-6, py::arg("threshold_c") = 1.0)
+      .def(py::init<registration::Params>(), py::arg("params"))
       .def("solve", &registration::FracgmSolver::solve, py::arg("pcd1"), py::arg("pcd2"), py::arg("noise_bound") = 0.1);
 
   py::module_ outlier_rejection = module.def_submodule("outlier_rejection");

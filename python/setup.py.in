@@ -2,9 +2,9 @@ from setuptools import setup
 
 setup(
     name='registration_python',
-    version='1.0.0',
+    version='1.0.1',
     author='Bang-Shien Chen',
-    description='Python binding for FracGM and QGM',
+    description='Python binding for my master thesis: Algorithms for Geman-McClure Robust Estimation and Applications for Spatial Perceptions".',
     package_dir={'': '${CMAKE_CURRENT_BINARY_DIR}'},
     packages=['registration_python'],
     package_data={'': ['*.so']}

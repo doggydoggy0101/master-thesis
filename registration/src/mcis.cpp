@@ -15,15 +15,15 @@
 
 #include "pmc/pmc.h"
 
-vector<int> registration::mcis::MaxCliqueSolver::findMaxClique(registration::mcis::Graph graph) {
+std::vector<int> registration::mcis::MaxCliqueSolver::findMaxClique(registration::mcis::Graph graph) {
   // Handle deprecated field
   if (!params_.solve_exactly) {
     params_.solver_mode = CLIQUE_SOLVER_MODE::PMC_HEU;
   }
 
   // Create a PMC graph from the TEASER graph
-  vector<int> edges;
-  vector<long long> vertices;
+  std::vector<int> edges;
+  std::vector<long long> vertices;
   vertices.push_back(edges.size());
 
   const auto all_vertices = graph.getVertices();
@@ -57,7 +57,7 @@ vector<int> registration::mcis::MaxCliqueSolver::findMaxClique(registration::mci
   in.vertex_search_order = "deg";
 
   // vector to represent max clique
-  vector<int> C;
+  std::vector<int> C;
 
   // upper-bound of max clique
   G.compute_cores();

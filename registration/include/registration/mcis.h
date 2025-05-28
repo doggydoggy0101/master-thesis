@@ -19,10 +19,9 @@
 
 #include "omp.h"
 #include "pmc/pmc.h"
+#include "registration/constant.h"
 
 namespace registration {
-
-using PointCloud = Eigen::Matrix<double, Eigen::Dynamic, 3>;
 
 namespace mcis {
 

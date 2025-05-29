@@ -3,10 +3,15 @@
 [![C++ Formatter](https://img.shields.io/badge/C++_Formatter-clang--format_18.1.3-blue?style=flat-square)](https://github.com/llvm/llvm-project/releases/tag/llvmorg-18.1.3)
 [![Python Formatter](https://img.shields.io/badge/Python_Formatter-ruff-red?style=flat-square)](https://github.com/astral-sh/ruff)
 
-
 **About**
 
 Official implementation of my master thesis "Algorithms for Geman-McClure Robust Estimation and Applications for Spatial Perceptions". This library is written in **C++** and we support **Python** interface.
+
+| ![](docs/bunny_iterations.gif)   | ![](docs/bunny_results.gif)   |
+| -------------------------------- | ----------------------------- |
+| ![](docs/3dmatch_iterations.gif) | ![](docs/3dmatch_results.gif) |
+
+> Point cloud registration example of our FracgmSolver.
 
 **Table of Contents**
 

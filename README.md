@@ -58,6 +58,14 @@ cd python && pip install .
 
 ## :books: Example usages
 
+We provide the following outlier rejection methods:
+
+| Method                          | Description                                                    |
+|---------------------------------|----------------------------------------------------------------|
+| tuple_test                      | From [FGR](https://github.com/isl-org/FastGlobalRegistration). |
+| maximum_clique_inlier_selection | From [TEASER++](https://github.com/MIT-SPARK/TEASER-plusplus). |
+| robin                           | From [ROBIN](https://github.com/MIT-SPARK/ROBIN).              |
+
 We provide the following robust point cloud registration solvers:
 
 | Solver       | Robust      | Description                                                       |
@@ -66,7 +74,7 @@ We provide the following robust point cloud registration solvers:
 | GncSolver    | TLS, GM, L0 | GNC-based registration solver with linear relaxation approach.    |
 | FracgmSolver | GM          | FracGM-based registration solver with linear relaxation approach. |
 
-> Note that QGM is IrlsSolver with the Geman-McClure robust function.
+> Note that QGM is equivalent to IrlsSolver with the Geman-McClure robust function.
 
 - [:croissant: C++](examples/cpp)
 - [:snake: Python](examples/python)

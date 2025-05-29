@@ -25,6 +25,13 @@ def get_toy_data():
     return src, dst, gt
 
 
+def perform_tuple(pcd1, pcd2, tuple_scale, max_tuple_count):
+    indices = registration_python.outlier_rejection.tuple_test(
+        pcd1, pcd2, tuple_scale=tuple_scale, max_tuple_count=max_tuple_count
+    )
+    return np.take(pcd1, indices, axis=0), np.take(pcd2, indices, axis=0)
+
+
 def perform_mcis(pcd1, pcd2, noise_bound, pmc_timeout, pmc_n_threads):
     indices = registration_python.outlier_rejection.maximum_clique_inlier_selection(
         pcd1,
@@ -36,9 +43,12 @@ def perform_mcis(pcd1, pcd2, noise_bound, pmc_timeout, pmc_n_threads):
     return np.take(pcd1, indices, axis=0), np.take(pcd2, indices, axis=0)
 
 
-def perform_tuple(pcd1, pcd2, tuple_scale, max_tuple_count):
-    indices = registration_python.outlier_rejection.tuple_test(
-        pcd1, pcd2, tuple_scale=tuple_scale, max_tuple_count=max_tuple_count
+def perform_robin(pcd1, pcd2, noise_bound, robin_mode):
+    indices = registration_python.outlier_rejection.robin(
+        pcd1,
+        pcd2,
+        noise_bound=noise_bound,
+        robin_mode=robin_mode,
     )
     return np.take(pcd1, indices, axis=0), np.take(pcd2, indices, axis=0)
 
@@ -47,19 +57,28 @@ def main():
     # data assumption
     noise_bound = 0.1
     # outlier rejection
-    method = "mcis"  # "mcis" or "tuple"
-    # mcis
-    pmc_timeout = 3600.0
-    pmc_n_threads = 4
+    method = "robin"  # "tuple", "mcis", "robin"
     # tuple
     tuple_scale = 0.95
     max_tuple_count = 1000
+    # mcis
+    pmc_timeout = 3600.0
+    pmc_n_threads = 4
+    # robin
+    robin_mode = "max_core"  # "max_core", "max_clique"
 
     src_reg, dst_reg, gt_reg = get_toy_data()
     print("Ground truth:")
     print(gt_reg, end="\n\n")
 
-    if method == "mcis":
+    if method == "tuple":
+        src_reg, dst_reg = perform_tuple(
+            pcd1=src_reg,
+            pcd2=dst_reg,
+            tuple_scale=tuple_scale,
+            max_tuple_count=max_tuple_count,
+        )
+    elif method == "mcis":
         src_reg, dst_reg = perform_mcis(
             pcd1=src_reg,
             pcd2=dst_reg,
@@ -67,12 +86,12 @@ def main():
             pmc_timeout=pmc_timeout,
             pmc_n_threads=pmc_n_threads,
         )
-    elif method == "tuple":
-        src_reg, dst_reg = perform_tuple(
+    elif method == "robin":
+        src_reg, dst_reg = perform_robin(
             pcd1=src_reg,
             pcd2=dst_reg,
-            tuple_scale=tuple_scale,
-            max_tuple_count=max_tuple_count,
+            noise_bound=noise_bound,
+            robin_mode=robin_mode,
         )
 
     irls_tls_params = registration_python.Params()

@@ -13,14 +13,13 @@ include(FetchContent)
 find_package(Eigen3 REQUIRED NO_MODULE)
 include_directories(${EIGEN3_INCLUDE_DIRS})
 
-# PMC
-FetchContent_Declare(pmc
-    GIT_REPOSITORY https://github.com/jingnanshi/pmc.git
-    GIT_TAG        ebc296c2710f8ae9e89b7cc78d73ff6b1a651bd6
-    SOURCE_DIR     "${CMAKE_SOURCE_DIR}/third-party/pmc"
+# ROBIN 
+FetchContent_Declare(robin
+  GIT_REPOSITORY https://github.com/doggydoggy0101/ROBIN.git
+  GIT_TAG master
+  SOURCE_DIR "${CMAKE_SOURCE_DIR}/third-party/robin"
 )
-FetchContent_MakeAvailable(pmc)
-
+FetchContent_MakeAvailable(robin)
 
 add_subdirectory(registration)
 message(STATUS "Building source done")

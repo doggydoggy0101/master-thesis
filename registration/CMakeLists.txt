@@ -9,7 +9,7 @@ target_include_directories(registration PUBLIC
     $<INSTALL_INTERFACE:${CMALE_INSTALL_INCLUDEDIR}> 
 )
 
-target_link_libraries(registration Eigen3::Eigen pmc)
+target_link_libraries(registration Eigen3::Eigen robin::robin)
 add_library(Registration::registration ALIAS registration)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/

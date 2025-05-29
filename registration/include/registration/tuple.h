@@ -20,11 +20,16 @@ namespace registration {
 
 namespace outlier_rejection {
 
+// TODO integrate `noise_bound` with tuple test (see KISS-Matcher)
+// I think `max_tuple_count` should be removed, it sets the maximum number of inliers.
+
 /**
  * @brief Turple test in paper: Fast Global Registration.
  *
  * @param src_point_cloud Source point cloud.
  * @param tar_point_cloud Target point cloud.
+ * @param tuple_scale Similarity measure used for tuples of feature points.
+ * @param max_tuple_count Maximum number of tuples.
  *
  * @return Indices of inlier correspondences.
  */

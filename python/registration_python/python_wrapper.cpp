@@ -40,11 +40,10 @@ PYBIND11_MODULE(registration_python, module) {
 
   py::module_ outlier_rejection = module.def_submodule("outlier_rejection");
   outlier_rejection
-      .def("tuple_test", &registration::outlier_rejection::tuple_test, py::arg("pcd1"), py::arg("pcd2"),
+      .def("tuple", &registration::outlier_rejection::tuple, py::arg("pcd1"), py::arg("pcd2"),
            py::arg("tuple_scale") = 0.95, py::arg("max_tuple_count") = 1000)
-      .def("maximum_clique_inlier_selection", &registration::outlier_rejection::maximum_clique_inlier_selection,
-           py::arg("pcd1"), py::arg("pcd2"), py::arg("noise_bound"), py::arg("pmc_timeout") = 3600.0,
-           py::arg("pmc_n_threads") = 4)
+      .def("mcis", &registration::outlier_rejection::mcis, py::arg("pcd1"), py::arg("pcd2"), py::arg("noise_bound"),
+           py::arg("pmc_timeout") = 3600.0, py::arg("pmc_n_threads") = 4)
       .def("robin", &registration::outlier_rejection::robin, py::arg("pcd1"), py::arg("pcd2"), py::arg("noise_bound"),
            py::arg("robin_mode") = "max_core");
 }

@@ -178,11 +178,9 @@ void scale_inliers_selector(const Eigen::Matrix<double, 3, Eigen::Dynamic>& src,
   *inliers = (v1_dist.array() - v2_dist.array()).array().abs() <= beta;
 }
 
-std::vector<int> registration::outlier_rejection::maximum_clique_inlier_selection(const registration::PointCloud& src,
-                                                                                  const registration::PointCloud& dst,
-                                                                                  double noise_bound,
-                                                                                  double pmc_timeout,
-                                                                                  int pmc_n_threads) {
+std::vector<int> registration::outlier_rejection::mcis(const registration::PointCloud& src,
+                                                       const registration::PointCloud& dst, double noise_bound,
+                                                       double pmc_timeout, int pmc_n_threads) {
   Eigen::Matrix<int, 2, Eigen::Dynamic> src_tims_map_;
   Eigen::Matrix<int, 2, Eigen::Dynamic> dst_tims_map_;
 

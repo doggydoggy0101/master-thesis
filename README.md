@@ -65,11 +65,11 @@ cd python && pip install .
 
 We provide the following outlier rejection methods:
 
-| Method                          | Description                                                    |
-|---------------------------------|----------------------------------------------------------------|
-| tuple_test                      | From [FGR](https://github.com/isl-org/FastGlobalRegistration). |
-| maximum_clique_inlier_selection | From [TEASER++](https://github.com/MIT-SPARK/TEASER-plusplus). |
-| robin                           | From [ROBIN](https://github.com/MIT-SPARK/ROBIN).              |
+| Method | Description                                                                                   |
+|--------|-----------------------------------------------------------------------------------------------|
+| tuple  | Tuple test from [FGR](https://github.com/isl-org/FastGlobalRegistration).                     |
+| mcis   | Maximum clique inlier selction from [TEASER++](https://github.com/MIT-SPARK/TEASER-plusplus). |
+| robin  | Graph theoretic outlier rejction from [ROBIN](https://github.com/MIT-SPARK/ROBIN).            |
 
 We provide the following robust point cloud registration solvers:
 

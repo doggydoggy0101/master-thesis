@@ -69,7 +69,7 @@ std::tuple<PointCloud, PointCloud, Eigen::Matrix<double, 4, 4, Eigen::RowMajor>>
 
 std::tuple<PointCloud, PointCloud> perform_tuple(const PointCloud &pc1, const PointCloud &pc2, double tuple_scale,
                                                  int max_tuple_count) {
-  auto indices = registration::outlier_rejection::tuple_test(pc1, pc2, tuple_scale, max_tuple_count);
+  auto indices = registration::outlier_rejection::tuple(pc1, pc2, tuple_scale, max_tuple_count);
 
   if (indices.empty()) return std::make_tuple(pc1, pc2);
 
@@ -87,8 +87,7 @@ std::tuple<PointCloud, PointCloud> perform_tuple(const PointCloud &pc1, const Po
 
 std::tuple<PointCloud, PointCloud> perform_mcis(const PointCloud &pc1, const PointCloud &pc2, double noise_bound,
                                                 double pmc_timeout, int pmc_n_threads) {
-  auto indices = registration::outlier_rejection::maximum_clique_inlier_selection(pc1, pc2, noise_bound, pmc_timeout,
-                                                                                  pmc_n_threads);
+  auto indices = registration::outlier_rejection::mcis(pc1, pc2, noise_bound, pmc_timeout, pmc_n_threads);
 
   if (indices.empty()) return std::make_tuple(pc1, pc2);
 
@@ -126,7 +125,7 @@ int main() {
   // data assumption
   double noise_bound = 0.1;
   // outlier rejection method
-  std::string method = "robin";  // "tuple", "mcis", "robin"
+  std::string method = "mcis";  // "tuple", "mcis", "robin"
   // tuple
   double tuple_scale = 0.95;
   int max_tuple_count = 1000;

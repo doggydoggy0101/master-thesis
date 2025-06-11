@@ -26,14 +26,14 @@ def get_toy_data():
 
 
 def perform_tuple(pcd1, pcd2, tuple_scale, max_tuple_count):
-    indices = registration_python.outlier_rejection.tuple_test(
+    indices = registration_python.outlier_rejection.tuple(
         pcd1, pcd2, tuple_scale=tuple_scale, max_tuple_count=max_tuple_count
     )
     return np.take(pcd1, indices, axis=0), np.take(pcd2, indices, axis=0)
 
 
 def perform_mcis(pcd1, pcd2, noise_bound, pmc_timeout, pmc_n_threads):
-    indices = registration_python.outlier_rejection.maximum_clique_inlier_selection(
+    indices = registration_python.outlier_rejection.mcis(
         pcd1,
         pcd2,
         noise_bound=noise_bound,
@@ -57,7 +57,7 @@ def main():
     # data assumption
     noise_bound = 0.1
     # outlier rejection
-    method = "robin"  # "tuple", "mcis", "robin"
+    method = "mcis"  # "tuple", "mcis", "robin"
     # tuple
     tuple_scale = 0.95
     max_tuple_count = 1000

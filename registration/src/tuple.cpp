@@ -11,9 +11,9 @@
 
 #include "registration/tuple.h"
 
-std::vector<int> registration::outlier_rejection::tuple_test(const PointCloud& src_point_cloud,
-                                                             const PointCloud& tar_point_cloud, double tuple_scale,
-                                                             int maximum_tuple_count) {
+std::vector<int> registration::outlier_rejection::tuple(const PointCloud& src_point_cloud,
+                                                        const PointCloud& tar_point_cloud, double tuple_scale,
+                                                        int maximum_tuple_count) {
   int rand0, rand1, rand2, cnt = 0;
   int ncorr = static_cast<int>(src_point_cloud.rows());
   int number_of_trial = ncorr * 100;
